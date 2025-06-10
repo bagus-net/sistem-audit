@@ -25,3 +25,25 @@ Route::get('domain/{id}', [DomainController::class, 'show'])->name('domain.show'
 Route::get('domain/{id}/edit', [DomainController::class, 'edit'])->name('domain.edit');
 Route::post('domain/{id}', [DomainController::class, 'update'])->name('domain.update');
 Route::delete('domain/{id}', [DomainController::class, 'destroy'])->name('domain.destroy');
+
+// Rute untuk ProsesTi (Pertanyaan)
+use App\Http\Controllers\ProsesTiController;
+
+Route::get('proses_ti', [ProsesTiController::class, 'index'])->name('proses_ti.index');
+Route::get('proses_ti/create', [ProsesTiController::class, 'create'])->name('proses_ti.create');
+Route::post('proses_ti', [ProsesTiController::class, 'store'])->name('proses_ti.store');
+Route::get('proses_ti/{id}', [ProsesTiController::class, 'show'])->name('proses_ti.show');
+Route::get('proses_ti/{id}/edit', [ProsesTiController::class, 'edit'])->name('proses_ti.edit');
+Route::post('proses_ti/{id}', [ProsesTiController::class, 'update'])->name('proses_ti.update');
+Route::delete('proses_ti/{id}', [ProsesTiController::class, 'destroy'])->name('proses_ti.destroy');
+
+// Rute untuk Klausul
+use App\Http\Controllers\KlausulController;
+
+Route::get('klausul', [KlausulController::class, 'index'])->name('klausul.index');
+Route::get('klausul/create', [KlausulController::class, 'create'])->name('klausul.create');
+Route::post('klausul', [KlausulController::class, 'store'])->name('klausul.store');
+Route::get('klausul/{id}', [KlausulController::class, 'show'])->name('klausul.show');
+Route::get('klausul/{id}/edit', [KlausulController::class, 'edit'])->name('klausul.edit');
+Route::post('klausul/{id}', [KlausulController::class, 'update'])->name('klausul.update');
+Route::delete('klausul/{id}', [KlausulController::class, 'destroy'])->name('klausul.destroy');

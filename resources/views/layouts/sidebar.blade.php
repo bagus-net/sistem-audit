@@ -32,13 +32,25 @@
         <div id="sidebar-menu">
             <!-- Left Menu Start -->
             <ul class="metismenu list-unstyled" id="side-menu">
-                <li class="menu-title">@lang('translation.Menu')</li>
+                <li class="menu-title">@lang('Data')</li>
 
                 <!-- Dashboard Menu -->
                 <li>
-                    <a href="{{url('/dashboard')}}">
+                    <a href="{{url('/domain')}}">
                         <i class="uil-chart-bar"></i>
-                        <span>@lang('Dashboard')</span>
+                        <span>@lang('Data Domain')</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{url('/klausul')}}">
+                        <i class="uil-file-alt"></i>
+                        <span>@lang('Data Klausul')</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{url('/proses_ti')}}">
+                        <i class="uil-question-circle"></i>
+                        <span>@lang('Pertanyaan')</span>
                     </a>
                 </li>
 

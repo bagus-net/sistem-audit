@@ -65,7 +65,7 @@
                         </tr>
                             </thead>
                             <tbody>
-                                @foreach ($$domains as $domain)
+                                @foreach ($domains as $domain)
                                 <tr>
                                     <td>{{ $loop->index + 1}}</td>
                                     <td>{{ $domain->kode_domain }}</td>
@@ -74,20 +74,15 @@
                                     
                                     <td>
                                         <!-- Tombol Show (Melihat detail dan barcode) -->
-                                                        
-                                                    {{-- @if($barangjadimasuk->Qty_Sisa1 == 0)
-                                                        <!-- Menampilkan pesan barang sudah keluar -->
-                                                        <span class="text-danger">Barang sudah keluar</span>
-                                                    @else --}}
+                                                         
                                                         <!-- Tombol Edit -->
                                                         <a href="{{ route('domain.edit', $domain->id) }}" class="btn btn-warning btn-sm">Edit</a>
                                                         <!-- Tombol Delete -->
-                                                        {{-- <form action="{{ route('barang-jadi.destroy', $domain->id) }}" method="POST" style="display:inline-block;">
+                                                        <form action="{{ route('domain.destroy', $domain->id) }}" method="POST" style="display:inline-block;">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">Hapus</button>
-                                                        </form> --}}
-                                                    {{-- @endif --}}
+                                                        </form>
                                                 </td>
                                             </tr>
                                             @endforeach

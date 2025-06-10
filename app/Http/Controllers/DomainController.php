@@ -56,6 +56,7 @@ class DomainController extends Controller
      */
     public function show($id)
     {
+        $domain = Domain::findOrFail($id);
         return view('domain.show', compact('domain'));
     }
 
@@ -67,7 +68,8 @@ class DomainController extends Controller
      */
     public function edit($id)
     {
-        //
+        $domain = Domain::findOrFail($id);
+        return view('domain.edit', compact('domain'));
     }
 
     /**
@@ -79,7 +81,18 @@ class DomainController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $domain = Domain::findOrFail($id);
+
+        $request->validate([
+            'kode_domain' => 'required|max:5|unique:domains,kode_domain,' . $domain->id,
+            'nama_domain' => 'required|max:255',
+            'deskripsi' => 'nullable'
+        ]);
+
+        $domain->update($request->all());
+
+        return redirect()->route('domain.index')
+                         ->with('success', 'Domain berhasil diperbarui');
     }
 
     /**
@@ -90,13 +103,15 @@ class DomainController extends Controller
      */
     public function destroy($id)
     {
-        // if($domain->klausuls()->count() > 0) {
-        //     return redirect()->back()
-        //                      ->with('error', 'Tidak dapat menghapus domain yang memiliki klausul');
-        // }
+        $domain = Domain::findOrFail($id);
 
-        // $domain->delete();
-        // return redirect()->route('domains.index')
-        //                  ->with('success', 'Domain berhasil dihapus');
+        if($domain->klausuls()->count() > 0) {
+            return redirect()->back()
+                             ->with('error', 'Tidak dapat menghapus domain yang memiliki klausul');
+        }
+
+        $domain->delete();
+        return redirect()->route('domain.index')
+                         ->with('success', 'Domain berhasil dihapus');
     }
 }
