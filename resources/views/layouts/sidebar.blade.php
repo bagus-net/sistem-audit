@@ -53,7 +53,7 @@
                         <span>@lang('Pertanyaan')</span>
                     </a>
                 </li>
-
+<li class="menu-title">@lang('Process')</li>
                 {{-- <!-- Produksi Menu -->
                 <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
@@ -95,7 +95,7 @@
                         <span>@lang('Laporan')</span>
                     </a>
                 </li>
-
+<li class="menu-title">@lang('Setting')</li>
                 <li>
                     <a href="{{url('users')}}">
                         <i class="uil-users-alt"></i>

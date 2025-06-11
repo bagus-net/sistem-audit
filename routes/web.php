@@ -26,6 +26,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/', function () {
     return view('welcome');
 });
+
+use App\Http\Controllers\UserController;
+
+Route::resource('users', UserController::class);
 // Rute untuk Domain
 Route::get('domain', [DomainController::class, 'index'])->name('domain.index');
 Route::get('domain/create', [DomainController::class, 'create'])->name('domain.create');

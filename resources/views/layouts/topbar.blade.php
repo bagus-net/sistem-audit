@@ -41,15 +41,21 @@
                 <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
                     
-                    {{-- <i class="fas fa-user"></i>
-                    <span class="d-none d-xl-inline-block ms-1 fw-medium font-size-15">{{Str::ucfirst(Auth::user()->username)}}</span>
-                    <i class="uil-angle-down d-none d-xl-inline-block font-size-17"></i> --}}
+                    <i class="fas fa-user"></i>
+                    <span class="d-none d-xl-inline-block ms-1 fw-medium font-size-15"> Hai {{Str::ucfirst(Auth::user()->username)}}</span>
+                    <i class="uil-angle-down d-none d-xl-inline-block font-size-17"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="/dashboard"><i class="uil-home-alt font-size-18 align-middle text-muted me-1"></i> <span class="align-middle">@lang( 'Dashboard')</span></a>
 
 
-                    <a class="dropdown-item" href="/logout"><i class="uil uil-sign-out-alt font-size-18 align-middle me-1 text-muted"></i> <span class="align-middle">@lang('translation.Sign_out')</span></a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="dropdown-item">
+                            <i class="uil uil-sign-out-alt font-size-18 align-middle me-1 text-muted"></i>
+                            <span class="align-middle">@lang('Logout')</span>
+                        </button>
+                    </form>
                 </div>
             </div>
 
