@@ -40,7 +40,6 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Domain</th>
                                 <th>Kode</th>
                                 <th>Nama Klausul</th>
                                 <th>Deskripsi</th>
@@ -51,7 +50,6 @@
                             @foreach ($klausuls as $klausul)
                             <tr>
                                 <td>{{ $loop->index + 1 }}</td>
-                                <td>{{ $klausul->domain->nama_domain ?? '-' }}</td>
                                 <td>{{ $klausul->kode_klausul ?? '-' }}</td>
                                 <td>{{ $klausul->nama_klausul ?? '-' }}</td>
                                 <td>{{ $klausul->deskripsi ?? '-' }}</td>

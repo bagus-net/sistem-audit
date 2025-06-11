@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateKlausulsTable extends Migration
+class CreateProjectsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateKlausulsTable extends Migration
      */
     public function up()
     {
-        Schema::create('klausuls', function (Blueprint $table) {
+        Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_klausul', 10); // K.4, K.5, dst
-            $table->string('nama_klausul'); // Konteks Organisasi, Kepemimpinan
-            $table->text('deskripsi')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +26,6 @@ class CreateKlausulsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('klausuls');
+        Schema::dropIfExists('projects');
     }
 }

@@ -9,11 +9,7 @@ class klausul extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['domain_id', 'kode_klausul', 'nama_klausul', 'deskripsi'];
-
-    public function domain() {
-        return $this->belongsTo(Domain::class);
-    }
+    protected $fillable = ['kode_klausul', 'nama_klausul', 'deskripsi'];
 
     public function prosesTi() {
         return $this->hasMany(ProsesTi::class);

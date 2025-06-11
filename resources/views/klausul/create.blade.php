@@ -23,15 +23,6 @@
                 <form action="{{ route('klausul.store') }}" method="POST">
                     @csrf
                     <div class="mb-3">
-                        <label for="domain_id" class="form-label">Domain</label>
-                        <select name="domain_id" id="domain_id" class="form-control" required>
-                            <option value="">-- Pilih Domain --</option>
-                            @foreach ($domains as $domain)
-                                <option value="{{ $domain->id }}" {{ old('domain_id') == $domain->id ? 'selected' : '' }}>{{ $domain->nama_domain }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
                         <label for="kode_klausul" class="form-label">Kode Klausul</label>
                         <input type="text" name="kode_klausul" id="kode_klausul" class="form-control" maxlength="10" value="{{ old('kode_klausul') }}" required>
                     </div>

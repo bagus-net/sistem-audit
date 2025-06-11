@@ -3,6 +3,8 @@
 use App\Http\Controllers\DomainController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\AuthController; // Moved outside the comment block
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,6 +15,13 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/', function () {
     return view('welcome');
@@ -36,6 +45,8 @@ Route::get('proses_ti/{id}', [ProsesTiController::class, 'show'])->name('proses_
 Route::get('proses_ti/{id}/edit', [ProsesTiController::class, 'edit'])->name('proses_ti.edit');
 Route::post('proses_ti/{id}', [ProsesTiController::class, 'update'])->name('proses_ti.update');
 Route::delete('proses_ti/{id}', [ProsesTiController::class, 'destroy'])->name('proses_ti.destroy');
+Route::get('proses_ti/get-domain/{id}', [ProsesTiController::class, 'getDomain'])->name('proses_ti.getDomain');
+Route::get('proses_ti/get-klausul/{id}', [ProsesTiController::class, 'getKlausul'])->name('proses_ti.getKlausul');
 
 // Rute untuk Klausul
 use App\Http\Controllers\KlausulController;
@@ -47,3 +58,4 @@ Route::get('klausul/{id}', [KlausulController::class, 'show'])->name('klausul.sh
 Route::get('klausul/{id}/edit', [KlausulController::class, 'edit'])->name('klausul.edit');
 Route::post('klausul/{id}', [KlausulController::class, 'update'])->name('klausul.update');
 Route::delete('klausul/{id}', [KlausulController::class, 'destroy'])->name('klausul.destroy');
+Route::get('klausul/json/{id}', [KlausulController::class, 'getKlausul'])->name('klausul.getKlausul');

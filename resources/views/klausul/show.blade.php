@@ -11,7 +11,6 @@
         </div>
         <div class="card">
             <div class="card-body">
-                <h5>Domain: {{ $klausul->domain->nama_domain ?? '-' }}</h5>
                 <h5>Kode Klausul: {{ $klausul->kode_klausul ?? '-' }}</h5>
                 <h5>Nama Klausul: {{ $klausul->nama_klausul ?? '-' }}</h5>
                 <p>Deskripsi: {{ $klausul->deskripsi ?? '-' }}</p>

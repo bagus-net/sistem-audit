@@ -54,7 +54,7 @@
                     </a>
                 </li>
 
-                <!-- Produksi Menu -->
+                {{-- <!-- Produksi Menu -->
                 <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="uil-dice-four"></i>
@@ -86,7 +86,7 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Laporan Menu -->
                 <li>
@@ -102,7 +102,17 @@
                         <span>@lang('Users')</span>
                     </a>
                 </li>
-
+                {{-- @if (Auth::check())
+                    <li>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-link">Logout</button>
+                        </form>
+                    </li>
+                @else
+                    <li><a href="{{ route('login') }}">Login</a></li>
+                    <li><a href="{{ route('register') }}">Register</a></li>
+                @endif --}}
             </ul>
         </div>
         <!-- Sidebar -->
