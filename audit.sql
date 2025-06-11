@@ -11,7 +11,7 @@
  Target Server Version : 80030
  File Encoding         : 65001
 
- Date: 10/06/2025 15:42:56
+ Date: 11/06/2025 14:21:33
 */
 
 SET NAMES utf8mb4;
@@ -29,14 +29,13 @@ CREATE TABLE `domains`  (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of domains
 -- ----------------------------
-INSERT INTO `domains` VALUES (3, 'EDM', 'Evaluate, Direct and Monitor', NULL, '2025-06-10 07:42:20', '2025-06-10 07:42:20');
-INSERT INTO `domains` VALUES (4, 'APO', 'Align, Plan and Organize', NULL, '2025-06-10 07:42:20', '2025-06-10 07:42:20');
-INSERT INTO `domains` VALUES (6, 'AD2', 'ADA', 'da', '2025-06-10 08:33:24', '2025-06-10 08:33:24');
+INSERT INTO `domains` VALUES (1, 'EDM', 'Evaluate, Direct and Monitor', NULL, '2025-06-11 03:55:06', '2025-06-11 03:55:06');
+INSERT INTO `domains` VALUES (2, 'APO', 'Align, Plan and Organize', NULL, '2025-06-11 03:55:06', '2025-06-11 03:55:06');
 
 -- ----------------------------
 -- Table structure for failed_jobs
@@ -89,23 +88,18 @@ CREATE TABLE `jawaban_audits`  (
 DROP TABLE IF EXISTS `klausuls`;
 CREATE TABLE `klausuls`  (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
-  `domain_id` bigint UNSIGNED NOT NULL,
   `kode_klausul` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `nama_klausul` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `deskripsi` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE,
-  INDEX `klausuls_domain_id_foreign`(`domain_id` ASC) USING BTREE,
-  CONSTRAINT `klausuls_domain_id_foreign` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of klausuls
 -- ----------------------------
-INSERT INTO `klausuls` VALUES (3, 4, 'K.4', 'Konteks Organisasi', NULL, '2025-06-10 07:42:20', '2025-06-10 07:42:20');
-INSERT INTO `klausuls` VALUES (4, 4, 'K.5', 'Kepemimpinan', NULL, '2025-06-10 07:42:20', '2025-06-10 07:42:20');
-INSERT INTO `klausuls` VALUES (6, 6, 'k.6', 'klausul a', 'd', '2025-06-10 08:33:44', '2025-06-10 08:33:44');
+INSERT INTO `klausuls` VALUES (1, 'k.6', 'klausul a', NULL, '2025-06-11 03:55:44', '2025-06-11 03:55:44');
 
 -- ----------------------------
 -- Table structure for migrations
@@ -174,7 +168,8 @@ CREATE TABLE `personal_access_tokens`  (
 DROP TABLE IF EXISTS `proses_tis`;
 CREATE TABLE `proses_tis`  (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
-  `klausul_id` bigint UNSIGNED NOT NULL,
+  `domain_id` bigint UNSIGNED NULL DEFAULT NULL,
+  `klausul_id` bigint UNSIGNED NULL DEFAULT NULL,
   `kode_proses` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `nama_proses` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `level` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -184,13 +179,15 @@ CREATE TABLE `proses_tis`  (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `proses_tis_klausul_id_foreign`(`klausul_id` ASC) USING BTREE,
-  CONSTRAINT `proses_tis_klausul_id_foreign` FOREIGN KEY (`klausul_id`) REFERENCES `klausuls` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  INDEX `proses_tis_domain_id_foreign`(`domain_id` ASC) USING BTREE,
+  CONSTRAINT `proses_tis_klausul_id_foreign` FOREIGN KEY (`klausul_id`) REFERENCES `klausuls` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `proses_tis_domain_id_foreign` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of proses_tis
 -- ----------------------------
-INSERT INTO `proses_tis` VALUES (2, 3, 'APO01.01', 'Merancang sistem manajemen TI', 'Level 2', 'Memahami visi, strategi, dan tantangan perusahaan saat ini?', NULL, '2025-06-10 07:42:20', '2025-06-10 07:42:20');
+INSERT INTO `proses_tis` VALUES (8, NULL, 1, 'APO', 'APO.k.6 (klausul a)', '2', 'Survei dan analisis data historis risiko TI serta kerugian, termasuk data eksternal, tren industri, dan database kejadian.', NULL, '2025-06-11 06:44:25', '2025-06-11 06:44:25');
 
 -- ----------------------------
 -- Table structure for users
@@ -198,11 +195,11 @@ INSERT INTO `proses_tis` VALUES (2, 3, 'APO01.01', 'Merancang sistem manajemen T
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users`  (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` enum('admin','auditor','manager') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'auditor',
+  `role` enum('1','2','3') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1',
   `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -213,5 +210,6 @@ CREATE TABLE `users`  (
 -- ----------------------------
 -- Records of users
 -- ----------------------------
+INSERT INTO `users` VALUES (1, 'admin', 'admin@gmail.com', NULL, '$2y$10$pnerTCihQlJCEJkj6/g5B.Cmb5hHE3tZLUbswiShY1hA/ZVYahzsG', '1', NULL, '2025-06-11 07:08:52', '2025-06-11 07:08:52');
 
 SET FOREIGN_KEY_CHECKS = 1;
