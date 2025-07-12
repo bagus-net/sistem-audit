@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Project extends Model
+class Question extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'nama_project',
-        'auditor',
+        'level_id',
+        'pertanyaan',
     ];
 
-    public function auditAnswers()
+    public function level()
     {
-        return $this->hasMany(AuditAnswer::class);
+        return $this->belongsTo(Level::class);
     }
 }

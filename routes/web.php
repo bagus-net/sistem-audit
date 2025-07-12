@@ -63,3 +63,39 @@ Route::get('klausul/{id}/edit', [KlausulController::class, 'edit'])->name('klaus
 Route::post('klausul/{id}', [KlausulController::class, 'update'])->name('klausul.update');
 Route::delete('klausul/{id}', [KlausulController::class, 'destroy'])->name('klausul.destroy');
 Route::get('klausul/json/{id}', [KlausulController::class, 'getKlausul'])->name('klausul.getKlausul');
+
+use App\Http\Controllers\LevelController;
+use App\Http\Controllers\QuestionController;
+
+// Rute untuk Level
+Route::get('level', [LevelController::class, 'index'])->name('level.index');
+Route::get('level/create', [LevelController::class, 'create'])->name('level.create');
+Route::post('level', [LevelController::class, 'store'])->name('level.store');
+Route::get('level/{id}/edit', [LevelController::class, 'edit'])->name('level.edit');
+Route::put('level/{id}', [LevelController::class, 'update'])->name('level.update');
+Route::delete('level/{id}', [LevelController::class, 'destroy'])->name('level.destroy');
+
+// Rute untuk Question
+Route::get('question', [QuestionController::class, 'index'])->name('question.index');
+Route::get('question/create', [QuestionController::class, 'create'])->name('question.create');
+Route::post('question', [QuestionController::class, 'store'])->name('question.store');
+Route::get('question/{id}/edit', [QuestionController::class, 'edit'])->name('question.edit');
+Route::put('question/{id}', [QuestionController::class, 'update'])->name('question.update');
+Route::delete('question/{id}', [QuestionController::class, 'destroy'])->name('question.destroy');
+
+use App\Http\Controllers\ProjectController;
+
+// Rute untuk Project
+Route::get('project', [ProjectController::class, 'index'])->name('project.index');
+Route::get('project/create', [ProjectController::class, 'create'])->name('project.create');
+Route::post('project', [ProjectController::class, 'store'])->name('project.store');
+Route::get('project/{id}/audit', [ProjectController::class, 'audit'])->name('project.audit');
+Route::post('project/{id}/audit', [ProjectController::class, 'saveAudit'])->name('project.saveAudit');
+Route::get('project/{id}/audit/{level_id}', [ProjectController::class, 'auditLevel'])->name('project.auditLevel');
+Route::post('project/{id}/audit/{level_id}', [ProjectController::class, 'saveAuditLevel'])->name('project.saveAuditLevel');
+Route::get('project/{id}', [ProjectController::class, 'show'])->name('project.show');
+Route::get('project/{id}/edit', [ProjectController::class, 'edit'])->name('project.edit');
+Route::post('project/{id}', [ProjectController::class, 'update'])->name('project.update');
+Route::delete('project/{id}', [ProjectController::class, 'destroy'])->name('project.destroy');
+Route::get('project/{id}/levels', [ProjectController::class, 'levelList'])->name('project.levelList');
+Route::get('project/{id}/download-pdf', [ProjectController::class, 'downloadPdf'])->name('project.downloadPdf');

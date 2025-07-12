@@ -35,25 +35,31 @@
                 <li class="menu-title">@lang('Data')</li>
 
                 <!-- Dashboard Menu -->
-                <li>
+                {{-- <li>
                     <a href="{{url('/domain')}}">
                         <i class="uil-chart-bar"></i>
                         <span>@lang('Data Domain')</span>
                     </a>
-                </li>
+                </li> --}}
                 <li>
                     <a href="{{url('/klausul')}}">
                         <i class="uil-file-alt"></i>
                         <span>@lang('Data Klausul')</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{url('/proses_ti')}}">
+                 <li>
+                    <a href="{{url('/level')}}">
                         <i class="uil-question-circle"></i>
-                        <span>@lang('Pertanyaan')</span>
+                        <span>@lang('Data Level')</span>
                     </a>
                 </li>
-<li class="menu-title">@lang('Process')</li>
+                <li>
+                    <a href="{{url('/question')}}">
+                        <i class="uil-question-circle"></i>
+                        <span>@lang('Data Pertanyaan')</span>
+                    </a>
+                </li>
+<li class="menu-title">@lang('Process Audit')</li>
                 {{-- <!-- Produksi Menu -->
                 <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
@@ -90,9 +96,9 @@
 
                 <!-- Laporan Menu -->
                 <li>
-                    <a href="{{url('/laporan')}}">
+                    <a href="{{url('/project')}}">
                         <i class="uil-book-alt"></i>
-                        <span>@lang('Laporan')</span>
+                        <span>@lang('Project')</span>
                     </a>
                 </li>
 <li class="menu-title">@lang('Setting')</li>
