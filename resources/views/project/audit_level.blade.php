@@ -42,7 +42,7 @@ Audit Project - Level {{ $level->level }}
                             </tbody>
                         </table>
                         <button type="submit" class="btn btn-success">Simpan Audit Level {{ $level->level }}</button>
-                        <a href="{{ route('project.index') }}" class="btn btn-secondary">Kembali</a>
+                        <a href="{{ route('project.levelList',$project->id) }}" class="btn btn-secondary">Kembali</a>
                     </form>
                 </div>
             </div>

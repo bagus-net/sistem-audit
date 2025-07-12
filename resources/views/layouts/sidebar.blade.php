@@ -49,7 +49,7 @@
                 </li>
                  <li>
                     <a href="{{url('/level')}}">
-                        <i class="uil-question-circle"></i>
+                        <i class="uil-signal-alt-3"></i>
                         <span>@lang('Data Level')</span>
                     </a>
                 </li>

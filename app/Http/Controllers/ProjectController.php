@@ -47,7 +47,9 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
         $levelIds = session('selected_levels', []);
         $levels = \App\Models\Level::whereIn('id', $levelIds)->with('klausul')->get();
-        return view('project.level_list', compact('project', 'levels'));
+        // Cek level yang sudah diisi audit
+        $auditedLevelIds = AuditAnswer::where('project_id', $project->id)->pluck('level_id')->unique()->toArray();
+        return view('project.level_list', compact('project', 'levels', 'auditedLevelIds'));
     }
 
     public function audit($id)
@@ -134,13 +136,14 @@ class ProjectController extends Controller
             ]);
         }
         // Cari level berikutnya dari pilihan project
-        $selectedLevels = request()->session()->get('selected_levels', []);
-        $currentIndex = array_search($level->id, $selectedLevels);
-        $nextLevelId = $selectedLevels[$currentIndex + 1] ?? null;
-        if ($nextLevelId) {
-            return redirect()->route('project.auditLevel', [$project->id, $nextLevelId]);
-        }
-        return redirect()->route('project.show', $project->id)->with('success', 'Audit selesai untuk semua level');
+        // $selectedLevels = request()->session()->get('selected_levels', []);
+        // $currentIndex = array_search($level->id, $selectedLevels);
+        // $nextLevelId = $selectedLevels[$currentIndex + 1] ?? null;
+        // if ($nextLevelId) {
+        //     return redirect()->route('project.auditLevel', [$project->id, $nextLevelId]);
+        // }
+        // Setelah submit audit, arahkan ke list level
+        return redirect()->route('project.levelList', $project->id)->with('success', 'Audit level berhasil disimpan');
     }
 
     public function downloadPdf($id)
@@ -157,5 +160,12 @@ class ProjectController extends Controller
         $grandTotal = count($totals) > 0 ? (array_sum($totals) / count($totals)) : 0;
         $pdf = FacadePdf::loadView('project.report_pdf', compact('project', 'totals', 'grandTotal'));
         return $pdf->download('report_project_'.$project->id.'.pdf');
+    }
+
+    public function destroy($id)
+    {
+        $project = Project::findOrFail($id);
+        $project->delete();
+        return redirect()->route('project.index')->with('success', 'Project berhasil dihapus');
     }
 }
