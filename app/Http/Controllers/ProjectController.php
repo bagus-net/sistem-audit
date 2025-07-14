@@ -159,7 +159,7 @@ class ProjectController extends Controller
         }
         $grandTotal = count($totals) > 0 ? (array_sum($totals) / count($totals)) : 0;
         $pdf = FacadePdf::loadView('project.report_pdf', compact('project', 'totals', 'grandTotal'));
-        return $pdf->download('report_project_'.$project->id.'.pdf');
+        return $pdf->download( 'report_project_'.$project->id.'.pdf');
     }
 
     public function destroy($id)

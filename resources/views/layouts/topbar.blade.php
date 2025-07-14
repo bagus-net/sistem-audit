@@ -4,21 +4,21 @@
             <!-- LOGO -->
             <div class="navbar-brand-box">
                 <a href="{{ url('dashboard') }}" class="logo logo-dark">
-                    <span class="logo-sm">
+                    {{-- <span class="logo-sm">
                         <img src="{{ URL::asset('/assets/images/mgm.png') }}" alt="" height="40">
                     </span>
                     <span class="logo-lg">
                         <img src="{{ URL::asset('/assets/images/mgm-dard.png') }}" alt="" height="30">
-                    </span>
+                    </span> --}}
                 </a>
 
                 <a href="{{ url('dashboard') }}" class="logo logo-light">
-                    <span class="logo-sm">
+                    {{-- <span class="logo-sm">
                         <img src="{{ URL::asset('/assets/images/mgm.png') }}" alt="" height="40">
                     </span>
                     <span class="logo-lg">
                         <img src="{{ URL::asset('/assets/images/mgm-light.png') }}" alt="" height="30">
-                    </span>
+                    </span> --}}
                 </a>
             </div>
 

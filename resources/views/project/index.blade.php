@@ -41,7 +41,7 @@ Daftar Project Audit
                                 <td>
                                     <a href="{{ route('project.levelList',$project->id) }}" class="btn btn-info btn-sm">Audit</a>
                                     <a href="{{ route('project.show', $project->id) }}" class="btn btn-primary btn-sm">Lihat Hasil</a>
-                                    <a href="{{ route('project.downloadPdf', $project->id) }}" class="btn btn-danger btn-sm">Download Report PDF</a>
+                                    <a href="{{ route('project.downloadPdf', $project->id) }}" class="btn btn-success btn-sm">Download Report PDF</a>
                                     <form action="{{ route('project.destroy', $project->id) }}" method="POST" style="display:inline-block;">
                                         @csrf
                                         @method('DELETE')

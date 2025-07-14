@@ -23,7 +23,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            return redirect()->intended('domain'); // Redirect to dashboard or intended route
+            return redirect()->route('klausul.index'); // Redirect langsung ke data klausul
         }
 
         return back()->withErrors([
@@ -54,7 +54,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->intended('login'); // Redirect to dashboard or intended route
+        return redirect()->route('klausul.index'); // Redirect langsung ke data klausul setelah register
     }
 
     public function logout(Request $request)
