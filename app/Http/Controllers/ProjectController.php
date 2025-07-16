@@ -25,20 +25,33 @@ class ProjectController extends Controller
         return view('project.create', compact('klausuls'));
     }
 
+    // Endpoint AJAX: return all level_id[] for selected klausul
+    public function getLevelsByKlausul(Request $request)
+    {
+        $ids = $request->input('klausul_ids', []);
+        $levelIds = Level::whereIn('klausul_id', $ids)->pluck('id')->toArray();
+        return response()->json(['level_ids' => $levelIds]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
             'nama_project' => 'required|string',
             'auditor' => 'nullable|string',
             'klausul_id' => 'required|array',
-            'level_id' => 'required|array',
+            'level_id' => 'required',
         ]);
+        $levelIds = $request->input('level_id');
+        // Pastikan $levelIds selalu array
+        if (!is_array($levelIds)) {
+            $levelIds = [$levelIds];
+        }
         $project = Project::create([
             'nama_project' => $validated['nama_project'],
             'auditor' => $validated['auditor'] ?? null,
         ]);
         // Simpan level yang dipilih ke session agar bisa dipakai di audit
-        session(['selected_levels' => $validated['level_id']]);
+        session(['selected_levels' => $levelIds]);
         return redirect()->route('project.levelList', $project->id);
     }
 

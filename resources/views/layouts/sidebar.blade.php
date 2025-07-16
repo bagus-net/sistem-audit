@@ -32,6 +32,13 @@
         <div id="sidebar-menu">
             <!-- Left Menu Start -->
             <ul class="metismenu list-unstyled" id="side-menu">
+
+                <li>
+                    <a href="{{ url('/dashboard') }}">
+                        <i class="uil uil-apps"></i>
+                        <span>@lang('Dashboard')</span>
+                    </a>
+                </li>
                 <li class="menu-title">@lang('Data')</li>
 
                 <!-- Dashboard Menu -->

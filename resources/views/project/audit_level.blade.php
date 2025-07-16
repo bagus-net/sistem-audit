@@ -10,7 +10,11 @@ Audit Project - Level {{ $level->level }}
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">Audit Project: {{ $project->nama_project }} - Level {{ $level->level }}</div>
+                <div class="card-header">
+                    Audit Project: {{ $project->nama_project }}<br>
+                    <span class="fw-bold">Klausul:</span> {{ $level->klausul->nama_klausul ?? '-' }}<br>
+                    <span class="fw-bold">Level:</span> {{ $level->level }}
+                </div>
                 <div class="card-body">
                     <form action="{{ route('project.saveAuditLevel', [$project->id, $level->id]) }}" method="POST">
                         @csrf
@@ -18,7 +22,7 @@ Audit Project - Level {{ $level->level }}
                             <thead>
                                 <tr>
                                     <th>Pertanyaan</th>
-                                    <th>Jawaban (Y/N)</th>
+                                    <th>Jawaban </th>
                                     <th>Bukti Hasil Kerja</th>
                                 </tr>
                             </thead>

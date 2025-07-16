@@ -18,10 +18,10 @@ Audit Project
                             <thead>
                                 <tr>
                                     <th>Klausul</th>
-                                    <th>Level</th>
                                     <th>Sub Proses</th>
+                                    <th>Level</th>
                                     <th>Pertanyaan</th>
-                                    <th>Jawaban (Y/N)</th>
+                                    <th>Jawaban</th>
                                     <th>Bukti Hasil Kerja</th>
                                 </tr>
                             </thead>
@@ -30,8 +30,8 @@ Audit Project
                                     @foreach($level->questions as $question)
                                         <tr>
                                             <td>{{ $level->klausul->nama_klausul ?? '-' }}</td>
-                                            <td>{{ $level->level }}</td>
                                             <td style="white-space: pre-line;">{{ $level->sub_proses }}</td>
+                                            <td>{{ $level->level }}</td>
                                             <td>{{ $question->pertanyaan }}</td>
                                             <td>
                                                 <select name="answers[{{ $level->id }}_{{ $question->id }}][jawaban]" class="form-control" required>

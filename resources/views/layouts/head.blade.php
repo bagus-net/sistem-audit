@@ -1,5 +1,6 @@
 @yield('css')
 <!-- Bootstrap Css -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <link href="{{ URL::asset('/assets/css/bootstrap.min.css')}}" id="bootstrap-style" rel="stylesheet" type="text/css" />
 <!-- Icons Css -->
 <link href="{{ URL::asset('/assets/css/icons.min.css')}}" id="icons-style" rel="stylesheet" type="text/css" />

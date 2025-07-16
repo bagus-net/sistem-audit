@@ -39,8 +39,8 @@ Pilih Level Audit
                                 <tr>
                                     <th>No</th>
                                     <th>Klausul</th>
-                                    <th>Level</th>
                                     <th>Sub Proses</th>
+                                    <th>Level</th>
                                     <th>Skor (%)</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -50,8 +50,8 @@ Pilih Level Audit
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $level->klausul->nama_klausul ?? '-' }}</td>
-                                    <td>{{ $level->level }}</td>
                                     <td style="white-space: pre-line;">{{ $level->sub_proses }}</td>
+                                    <td>{{ $level->level }}</td>
                                     <td>{{ number_format($levelScores[$level->id], 2) }}</td>
                                     <td>
                                         @if(in_array($level->id, $auditedLevelIds))

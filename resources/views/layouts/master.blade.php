@@ -41,7 +41,9 @@
     <!-- /Right-bar -->
 
     <!-- JAVASCRIPT -->
+</div>
     @include('layouts.vendor-scripts')
+    @stack('scripts')
 </body>
 
 </html>

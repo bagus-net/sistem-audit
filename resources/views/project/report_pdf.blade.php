@@ -22,8 +22,8 @@
             <tr>
                 <th>No</th>
                 <th>Klausul</th>
-                <th>Level</th>
                 <th>Sub Proses</th>
+                <th>Level</th>
                 <th>Pertanyaan</th>
                 <th>Jawaban</th>
                 <th>Bukti Hasil Kerja</th>
@@ -34,8 +34,8 @@
             <tr>
                 <td>{{ $i+1 }}</td>
                 <td>{{ $answer->level->klausul->nama_klausul ?? '-' }}</td>
+                <td style="white-space: pre-line;">{{ $answer->level->sub_proses ?? '-' }}</td>
                 <td>{{ $answer->level->level ?? '-' }}</td>
-                <td>{{ $answer->level->sub_proses ?? '-' }}</td>
                 <td>{{ $answer->question->pertanyaan ?? '-' }}</td>
                 <td>{{ $answer->jawaban == 1 ? 'Y' : 'N' }}</td>
                 <td>{{ $answer->bukti_hasil_kerja }}</td>

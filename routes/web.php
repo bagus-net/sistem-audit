@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Http\Controllers\DomainController;
@@ -26,7 +27,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/', function () {
     return redirect()->route('login');
 });
+use App\Http\Controllers\DashboardController;
 
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 use App\Http\Controllers\UserController;
 
 Route::resource('users', UserController::class);
@@ -58,6 +61,10 @@ use App\Http\Controllers\KlausulController;
 Route::get('klausul', [KlausulController::class, 'index'])->name('klausul.index');
 Route::get('klausul/create', [KlausulController::class, 'create'])->name('klausul.create');
 Route::post('klausul', [KlausulController::class, 'store'])->name('klausul.store');
+
+// AJAX endpoint untuk ambil level berdasarkan klausul
+use App\Http\Controllers\ProjectController;
+Route::post('project/get-levels-by-klausul', [ProjectController::class, 'getLevelsByKlausul'])->name('project.getLevelsByKlausul');
 Route::get('klausul/{id}', [KlausulController::class, 'show'])->name('klausul.show');
 Route::get('klausul/{id}/edit', [KlausulController::class, 'edit'])->name('klausul.edit');
 Route::post('klausul/{id}', [KlausulController::class, 'update'])->name('klausul.update');
@@ -83,7 +90,7 @@ Route::get('question/{id}/edit', [QuestionController::class, 'edit'])->name('que
 Route::put('question/{id}', [QuestionController::class, 'update'])->name('question.update');
 Route::delete('question/{id}', [QuestionController::class, 'destroy'])->name('question.destroy');
 
-use App\Http\Controllers\ProjectController;
+
 
 // Rute untuk Project
 Route::get('project', [ProjectController::class, 'index'])->name('project.index');

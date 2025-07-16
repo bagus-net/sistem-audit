@@ -16,8 +16,8 @@ Hasil Audit Project
                         <thead>
                             <tr>
                                 <th>Klausul</th>
-                                <th>Level</th>
                                 <th>Sub Proses</th>
+                                <th>Level</th>
                                 <th>Pertanyaan</th>
                                 <th>Jawaban</th>
                                 <th>Bukti Hasil Kerja</th>
@@ -27,8 +27,8 @@ Hasil Audit Project
                             @foreach($project->auditAnswers as $answer)
                             <tr>
                                 <td>{{ $answer->klausul->nama_klausul ?? '-' }}</td>
-                                <td>{{ $answer->level->level ?? '-' }}</td>
                                 <td style="white-space: pre-line;">{{ $answer->level->sub_proses ?? '-' }}</td>
+                                <td>{{ $answer->level->level ?? '-' }}</td>
                                 <td>{{ $answer->question->pertanyaan ?? '-' }}</td>
                                 <td>{{ $answer->jawaban == 1 ? 'Y' : 'N' }}</td>
                                 <td>{{ $answer->bukti_hasil_kerja }}</td>
