@@ -61,11 +61,49 @@ class ProjectController extends Controller
     public function levelList($id)
     {
         $project = Project::findOrFail($id);
-        $levelIds = session('selected_levels', []);
-        $levels = \App\Models\Level::whereIn('id', $levelIds)->with('klausul')->get();
-        // Cek level yang sudah diisi audit
-        $auditedLevelIds = AuditAnswer::where('project_id', $project->id)->pluck('level_id')->unique()->toArray();
-        return view('project.level_list', compact('project', 'levels', 'auditedLevelIds'));
+        // Ambil klausul dari session (input project) jika ada, jika tidak fallback ke klausul yang sudah diaudit, jika tidak ada juga tampilkan semua klausul
+        $selectedKlausuls = session('selected_klausuls', []);
+        $auditedLevelIds = [];
+        if (!empty($selectedKlausuls)) {
+            $klausulIds = $selectedKlausuls;
+            // Optionally, you can fill $auditedLevelIds with audited levels for these klausul (not strictly needed for view, but prevents undefined)
+            // $auditedLevelIds = AuditAnswer::where('project_id', $project->id)->whereIn('klausul_id', $klausulIds)->pluck('level_id')->unique()->toArray();
+        } else {
+            $auditedLevelIds = AuditAnswer::where('project_id', $project->id)->pluck('level_id')->unique()->toArray();
+            $auditedLevels = [];
+            $klausulIds = [];
+            if (!empty($auditedLevelIds)) {
+                $auditedLevels = \App\Models\Level::whereIn('id', $auditedLevelIds)->get();
+                $klausulIds = $auditedLevels->pluck('klausul_id')->unique()->toArray();
+            }
+            if (empty($klausulIds)) {
+                $klausulIds = \App\Models\Klausul::pluck('id')->toArray();
+            }
+        }
+        $levels = \App\Models\Level::whereIn('klausul_id', $klausulIds)->with('klausul')->get();
+
+        // Hitung lockedKlausulLevel: untuk setiap klausul, cari level tertinggi yang sudah diaudit dengan skor < passing
+        $lockedKlausulLevel = [];
+        $passing = 15;
+        foreach ($klausulIds as $kid) {
+            $klausulLevels = $levels->where('klausul_id', $kid);
+            $maxFailed = null;
+            foreach ($klausulLevels as $lvl) {
+                $answers = AuditAnswer::where('project_id', $project->id)->where('level_id', $lvl->id)->get();
+                $count = $answers->count();
+                $score = $count > 0 ? ($answers->sum('jawaban') / $count) * 100 : null;
+                if ($score !== null && $score < $passing) {
+                    if ($maxFailed === null || $lvl->level > $maxFailed) {
+                        $maxFailed = $lvl->level;
+                    }
+                }
+            }
+            if ($maxFailed !== null) {
+                $lockedKlausulLevel[$kid] = $maxFailed;
+            }
+        }
+
+        return view('project.level_list', compact('project', 'levels', 'auditedLevelIds', 'lockedKlausulLevel'));
     }
 
     public function audit($id)
