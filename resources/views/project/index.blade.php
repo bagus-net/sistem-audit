@@ -23,7 +23,10 @@ Daftar Project Audit
         @endif
                 <div class="card-header">Daftar Project Audit</div>
                 <div class="card-body">
-                    <a class="btn btn-success mb-3" href="{{ route('project.create') }}">Tambah Project</a>
+                    @php $role = auth()->user()->role ?? null; @endphp
+                    @if($role == '1')
+                        <a class="btn btn-success mb-3" href="{{ route('project.create') }}">Tambah Project</a>
+                    @endif
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -40,15 +43,18 @@ Daftar Project Audit
                                 <td>{{ $project->nama_project }}</td>
                                 <td>{{ $project->auditor }}</td>
                                 <td>
+                                    @if($role != '3')
                                     <a href="{{ route('project.levelList',$project->id) }}" class="btn btn-info btn-sm" title="Audit">
                                         <i class="fa fa-clipboard-check"></i>
                                     </a>
+                                    @endif
                                     <a href="{{ route('project.show', $project->id) }}" class="btn btn-primary btn-sm" title="Lihat Hasil">
                                         <i class="fa fa-eye"></i>
                                     </a>
                                     <a href="{{ route('project.downloadPdf', $project->id) }}" class="btn btn-success btn-sm" title="Download Report PDF">
                                         <i class="fa fa-file-pdf"></i>
                                     </a>
+                                    @if($role == '1')
                                     <form action="{{ route('project.destroy', $project->id) }}" method="POST" style="display:inline-block;">
                                         @csrf
                                         @method('DELETE')
@@ -56,6 +62,7 @@ Daftar Project Audit
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach

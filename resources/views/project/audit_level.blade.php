@@ -16,7 +16,7 @@ Audit Project - Level {{ $level->level }}
                     <span class="fw-bold">Level:</span> {{ $level->level }}
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('project.saveAuditLevel', [$project->id, $level->id]) }}" method="POST">
+                    <form action="{{ route('project.saveAuditLevel', [$project->id, $level->id]) }}" method="POST" id="auditForm">
                         @csrf
                         <table class="table table-bordered">
                             <thead>
@@ -32,7 +32,7 @@ Audit Project - Level {{ $level->level }}
                                         <td>{{ $question->pertanyaan }}</td>
                                         <td class="text-center">
                                             <input type="hidden" name="answers[{{ $question->id }}][jawaban]" value="0">
-                                            <input type="checkbox" name="answers[{{ $question->id }}][jawaban]" value="1" 
+                                            <input type="checkbox" class="jawaban-checkbox" name="answers[{{ $question->id }}][jawaban]" value="1" 
                                                 {{ (isset($answers[$loop->index]) && $answers[$loop->index]->jawaban == 1) ? 'checked' : '' }}>
                                             <input type="hidden" name="answers[{{ $question->id }}][question_id]" value="{{ $question->id }}">
                                         </td>
@@ -43,9 +43,32 @@ Audit Project - Level {{ $level->level }}
                                 @endforeach
                             </tbody>
                         </table>
+
+                        <div class="mb-3">
+                            <div id="score-preview" class="alert alert-info" style="font-size:1.1em;">
+                                Skor: <span id="score-value">0</span>%
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn btn-success">Simpan Audit Level {{ $level->level }}</button>
                         <a href="{{ route('project.levelList',$project->id) }}" class="btn btn-secondary">Kembali</a>
                     </form>
+                    <script>
+                        function updateScorePreview() {
+                            const checkboxes = document.querySelectorAll('.jawaban-checkbox');
+                            let total = checkboxes.length;
+                            let checked = 0;
+                            checkboxes.forEach(cb => { if(cb.checked) checked++; });
+                            let score = total > 0 ? (checked / total) * 100 : 0;
+                            document.getElementById('score-value').innerText = score.toFixed(2);
+                        }
+                        document.addEventListener('DOMContentLoaded', function() {
+                            updateScorePreview();
+                            document.querySelectorAll('.jawaban-checkbox').forEach(cb => {
+                                cb.addEventListener('change', updateScorePreview);
+                            });
+                        });
+                    </script>
                 </div>
             </div>
         </div>

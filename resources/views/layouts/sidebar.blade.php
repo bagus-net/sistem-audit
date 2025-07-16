@@ -32,89 +32,50 @@
         <div id="sidebar-menu">
             <!-- Left Menu Start -->
             <ul class="metismenu list-unstyled" id="side-menu">
-
                 <li>
                     <a href="{{ url('/dashboard') }}">
                         <i class="uil uil-apps"></i>
                         <span>@lang('Dashboard')</span>
                     </a>
                 </li>
-                <li class="menu-title">@lang('Data')</li>
-
-                <!-- Dashboard Menu -->
-                {{-- <li>
-                    <a href="{{url('/domain')}}">
-                        <i class="uil-chart-bar"></i>
-                        <span>@lang('Data Domain')</span>
-                    </a>
-                </li> --}}
-                <li>
-                    <a href="{{url('/klausul')}}">
-                        <i class="uil-file-alt"></i>
-                        <span>@lang('Data Klausul')</span>
-                    </a>
-                </li>
-                 <li>
-                    <a href="{{url('/level')}}">
-                        <i class="uil-signal-alt-3"></i>
-                        <span>@lang('Data Level')</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{url('/question')}}">
-                        <i class="uil-question-circle"></i>
-                        <span>@lang('Data Pertanyaan')</span>
-                    </a>
-                </li>
-<li class="menu-title">@lang('Process Audit')</li>
-                {{-- <!-- Produksi Menu -->
-                <li>
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
-                        <i class="uil-dice-four"></i>
-                        <span>Produksi</span>
-                    </a>
-                    <ul class="sub-menu" aria-expanded="true">
-                        <li>
-                            <a href="{{url('/bahanbakumasuk')}}">
-                                <i class="uil-file-blank"></i>
-                                <span>@lang('Incoming')</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{url('/pemakaian')}}">
-                                <i class="uil-file-alt"></i>
-                                <span>@lang('Pemakaian Produksi')</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{url('/barangjadi')}}">
-                                <i class="uil-file-check"></i>
-                                <span>@lang('Barang Jadi Masuk')</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{url('/barangjadikeluar')}}">
-                                <i class="uil-file-times-alt"></i>
-                                <span>@lang('Barang Jadi Keluar')</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li> --}}
-
-                <!-- Laporan Menu -->
+                @php $role = auth()->user()->role ?? null; @endphp
+                @if($role == '1') {{-- Admin --}}
+                    <li class="menu-title">@lang('Data')</li>
+                    <li>
+                        <a href="{{url('/klausul')}}">
+                            <i class="uil-file-alt"></i>
+                            <span>@lang('Data Klausul')</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{url('/level')}}">
+                            <i class="uil-signal-alt-3"></i>
+                            <span>@lang('Data Level')</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{url('/question')}}">
+                            <i class="uil-question-circle"></i>
+                            <span>@lang('Data Pertanyaan')</span>
+                        </a>
+                    </li>
+                    <li class="menu-title">@lang('Process Audit')</li>
+                @endif
                 <li>
                     <a href="{{url('/project')}}">
                         <i class="uil-book-alt"></i>
                         <span>@lang('Project')</span>
                     </a>
                 </li>
-<li class="menu-title">@lang('Setting')</li>
-                <li>
-                    <a href="{{url('users')}}">
-                        <i class="uil-users-alt"></i>
-                        <span>@lang('Users')</span>
-                    </a>
-                </li>
+                @if($role == '1') {{-- Admin --}}
+                    <li class="menu-title">@lang('Setting')</li>
+                    <li>
+                        <a href="{{url('users')}}">
+                            <i class="uil-users-alt"></i>
+                            <span>@lang('Users')</span>
+                        </a>
+                    </li>
+                @endif
                 {{-- @if (Auth::check())
                     <li>
                         <form action="{{ route('logout') }}" method="POST">

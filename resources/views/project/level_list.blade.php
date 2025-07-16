@@ -26,6 +26,7 @@ Pilih Level Audit
                     @php
     // Hitung skor per level
     $levelScores = [];
+    $lockedKlausulLevel = session('locked_klausul_level', []);
     foreach($levels as $level) {
         $answers = \App\Models\AuditAnswer::where('project_id', $project->id)->where('level_id', $level->id)->get();
         $count = $answers->count();
@@ -54,7 +55,18 @@ Pilih Level Audit
                                     <td>{{ $level->level }}</td>
                                     <td>{{ number_format($levelScores[$level->id], 2) }}</td>
                                     <td>
-                                        @if(in_array($level->id, $auditedLevelIds))
+                                        @php
+                                            $isLocked = false;
+                                            $maxAllowed = isset($lockedKlausulLevel[$level->klausul_id]) ? $lockedKlausulLevel[$level->klausul_id] : null;
+                                            if ($maxAllowed !== null && $level->level > $maxAllowed) {
+                                                $isLocked = true;
+                                            }
+                                        @endphp
+                                        @if($isLocked)
+                                            <button class="btn btn-secondary btn-sm" title="Level terkunci" disabled>
+                                                <i class="fa fa-lock"></i> Terkunci
+                                            </button>
+                                        @elseif(in_array($level->id, $auditedLevelIds))
                                             <a href="{{ route('project.auditLevel', [$project->id, $level->id]) }}" class="btn btn-warning btn-sm" title="Edit Audit">
                                                 <i class="fa fa-pencil-alt"></i>
                                             </a>

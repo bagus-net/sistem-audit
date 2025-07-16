@@ -84,11 +84,11 @@
             @endforeach
         </tbody>
     </table>
-    <div class="section-title">Total Nilai Semua Level</div>
+    <div class="section-title">Total Global</div>
     <table>
         <tr>
-            <th>Rata-rata Semua Level</th>
-            <td>{{ number_format($grandTotal, 2) }}%</td>
+            <th>Nilai Global</th>
+            <td><strong>{{ number_format($globalRecap, 2) }}</strong></td>
         </tr>
     </table>
     <div style="text-align: center; font-size: 10px; margin-top: 40px;">

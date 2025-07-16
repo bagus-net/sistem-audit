@@ -24,7 +24,7 @@ Hasil Audit Project
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($project->auditAnswers as $answer)
+                            @foreach($filteredAnswers as $answer)
                             <tr>
                                 <td>{{ $answer->klausul->nama_klausul ?? '-' }}</td>
                                 <td style="white-space: pre-line;">{{ $answer->level->sub_proses ?? '-' }}</td>
@@ -36,9 +36,9 @@ Hasil Audit Project
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="alert alert-info">
+                    {{-- <div class="alert alert-info">
                         <strong>Total Audit: </strong> {{ number_format($total, 2) }}%
-                    </div>
+                    </div> --}}
                     @php
                         $grandTotal = count($totals) > 0 ? (array_sum($totals) / count($totals)) : 0;
                     @endphp
@@ -77,7 +77,8 @@ Hasil Audit Project
                         </div>
                         <div class="col-md-6">
                             <div class="alert alert-success">
-                                <strong>Total Nilai Semua Level:</strong> <span style="font-size:1.2em">{{ number_format($grandTotal, 2) }}%</span>
+                                <strong>Total Global:</strong> <br>
+                                <span style="font-size:1.5em"><strong>{{ number_format($globalRecap, 2) }}</strong></span>
                             </div>
                         </div>
                     </div>
