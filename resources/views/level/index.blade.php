@@ -16,6 +16,7 @@
 <link href="{{ URL::asset('/assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('/assets/libs/chart-js/Chart.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128+Text&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 
 
@@ -40,7 +41,8 @@
             <div class="card-body">
                 <a href="{{ route('level.create') }}" class="btn btn-success mb-3">Tambah Level</a>
                 <div class="table-responsive">
-                    <table id="datatable-buttons" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                   <table id="datatable" class="table table-bordered dt-responsive nowrap"
+                        style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                         <thead>
                         <tr>
                                                 <th>No</th>
@@ -59,11 +61,15 @@
                                                 <td>{{ $level->level }}</td>
                                                 
                                                 <td>
-                                                    <a href="{{ route('level.edit', $level->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                                    <a href="{{ route('level.edit', $level->id) }}" class="btn btn-warning btn-sm" title="Edit">
+                                                        <i class="fa fa-pencil-alt"></i>
+                                                    </a>
                                                     <form action="{{ route('level.destroy', $level->id) }}" method="POST" style="display:inline-block;">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus?')">Hapus</button>
+                                                        <button type="submit" class="btn btn-danger btn-sm" title="Hapus" onclick="return confirm('Yakin hapus?')">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
                                                     </form>
                                                 </td>
                                             </tr>

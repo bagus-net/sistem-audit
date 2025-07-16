@@ -4,6 +4,7 @@ Daftar Project Audit
 @endsection
 @section('css')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.7.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 @endsection
 @section('content')
 <div class="container mt-4">
@@ -39,13 +40,21 @@ Daftar Project Audit
                                 <td>{{ $project->nama_project }}</td>
                                 <td>{{ $project->auditor }}</td>
                                 <td>
-                                    <a href="{{ route('project.levelList',$project->id) }}" class="btn btn-info btn-sm">Audit</a>
-                                    <a href="{{ route('project.show', $project->id) }}" class="btn btn-primary btn-sm">Lihat Hasil</a>
-                                    <a href="{{ route('project.downloadPdf', $project->id) }}" class="btn btn-success btn-sm">Download Report PDF</a>
+                                    <a href="{{ route('project.levelList',$project->id) }}" class="btn btn-info btn-sm" title="Audit">
+                                        <i class="fa fa-clipboard-check"></i>
+                                    </a>
+                                    <a href="{{ route('project.show', $project->id) }}" class="btn btn-primary btn-sm" title="Lihat Hasil">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('project.downloadPdf', $project->id) }}" class="btn btn-success btn-sm" title="Download Report PDF">
+                                        <i class="fa fa-file-pdf"></i>
+                                    </a>
                                     <form action="{{ route('project.destroy', $project->id) }}" method="POST" style="display:inline-block;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Yakin hapus project ini?')">Hapus</button>
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Hapus" onclick="return confirm('Yakin hapus project ini?')">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
                                     </form>
                                 </td>
                             </tr>

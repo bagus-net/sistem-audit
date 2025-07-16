@@ -26,12 +26,10 @@ Audit Project - Level {{ $level->level }}
                                 @foreach($level->questions as $question)
                                     <tr>
                                         <td>{{ $question->pertanyaan }}</td>
-                                        <td>
-                                            <select name="answers[{{ $question->id }}][jawaban]" class="form-control" required>
-                                                <option value="">Pilih</option>
-                                                <option value="1" {{ (isset($answers[$loop->index]) && $answers[$loop->index]->jawaban == 1) ? 'selected' : '' }}>Y</option>
-                                                <option value="0" {{ (isset($answers[$loop->index]) && $answers[$loop->index]->jawaban == 0) ? 'selected' : '' }}>N</option>
-                                            </select>
+                                        <td class="text-center">
+                                            <input type="hidden" name="answers[{{ $question->id }}][jawaban]" value="0">
+                                            <input type="checkbox" name="answers[{{ $question->id }}][jawaban]" value="1" 
+                                                {{ (isset($answers[$loop->index]) && $answers[$loop->index]->jawaban == 1) ? 'checked' : '' }}>
                                             <input type="hidden" name="answers[{{ $question->id }}][question_id]" value="{{ $question->id }}">
                                         </td>
                                         <td>

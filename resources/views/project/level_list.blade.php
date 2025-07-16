@@ -4,6 +4,7 @@ Pilih Level Audit
 @endsection
 @section('css')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.7.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 @endsection
 @section('content')
 <div class="container mt-4">
@@ -54,9 +55,13 @@ Pilih Level Audit
                                     <td>{{ number_format($levelScores[$level->id], 2) }}</td>
                                     <td>
                                         @if(in_array($level->id, $auditedLevelIds))
-                                            <a href="{{ route('project.auditLevel', [$project->id, $level->id]) }}" class="btn btn-warning btn-sm">Edit Audit</a>
+                                            <a href="{{ route('project.auditLevel', [$project->id, $level->id]) }}" class="btn btn-warning btn-sm" title="Edit Audit">
+                                                <i class="fa fa-pencil-alt"></i>
+                                            </a>
                                         @else
-                                            <a href="{{ route('project.auditLevel', [$project->id, $level->id]) }}" class="btn btn-primary btn-sm">Audit Level Ini</a>
+                                            <a href="{{ route('project.auditLevel', [$project->id, $level->id]) }}" class="btn btn-primary btn-sm" title="Audit Level Ini">
+                                                <i class="fa fa-clipboard-check"></i>
+                                            </a>
                                         @endif
                                     </td>
                                 </tr>

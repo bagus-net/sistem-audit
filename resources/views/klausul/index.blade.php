@@ -12,10 +12,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ asset('js/dashboard-charts.js') }}"></script>
 
-<link href="{{ URL::asset('/assets/libs/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('/assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('/assets/libs/chart-js/Chart.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ URL::asset('/assets/libs/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128+Text&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 @endsection
 @section('content')
@@ -38,7 +39,8 @@
             <div class="card-body">
                 <a href="{{ route('klausul.create') }}" class="btn btn-success mb-3">Tambah Klausul</a>
                  <div class="table-responsive">
-                    <table id="datatable-buttons" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                    <table id="datatable" class="table table-bordered dt-responsive nowrap"
+                        style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                         <thead>
                         <tr>
                                 <th>No</th>
@@ -56,12 +58,18 @@
                                 <td>{{ $klausul->nama_klausul ?? '-' }}</td>
                                 <td>{{ $klausul->deskripsi ?? '-' }}</td>
                                 <td>
-                                    <a href="{{ route('klausul.show', $klausul->id) }}" class="btn btn-info btn-sm">Lihat</a>
-                                    <a href="{{ route('klausul.edit', $klausul->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="{{ route('klausul.show', $klausul->id) }}" class="btn btn-info btn-sm" title="Lihat">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('klausul.edit', $klausul->id) }}" class="btn btn-warning btn-sm" title="Edit">
+                                        <i class="fa fa-pencil-alt"></i>
+                                    </a>
                                     <form action="{{ route('klausul.destroy', $klausul->id) }}" method="POST" style="display:inline-block;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus klausul ini?')">Hapus</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Hapus" onclick="return confirm('Apakah Anda yakin ingin menghapus klausul ini?')">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
                                     </form>
                                 </td>
                             </tr>
@@ -83,9 +91,13 @@
 <script src="{{ URL::asset('/assets/libs/datatables/datatables.min.js') }}"></script>
 <script src="{{ URL::asset('/assets/libs/jszip/jszip.min.js') }}"></script>
 <script src="{{ URL::asset('/assets/libs/pdfmake/pdfmake.min.js') }}"></script>
-<script src="{{ URL::asset('/assets/js/pages/datatables.init.js') }}"></script>
+
 <script src="{{ URL::asset('/assets/libs/apexcharts/apexcharts.min.js') }}"></script>
 <script src="{{ URL::asset('/assets/js/pages/apexcharts.init.js') }}"></script>
+<script src="{{ URL::asset('/assets/libs/datatables/datatables.min.js') }}"></script>
+<script src="{{ URL::asset('/assets/libs/jszip/jszip.min.js') }}"></script>
+<script src="{{ URL::asset('/assets/libs/pdfmake/pdfmake.min.js') }}"></script>
+<script src="{{ URL::asset('/assets/js/pages/datatables.init.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="{{ asset('js/dashboard-charts.js') }}"></script>

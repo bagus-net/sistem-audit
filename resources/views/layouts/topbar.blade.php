@@ -46,7 +46,7 @@
                     <i class="uil-angle-down d-none d-xl-inline-block font-size-17"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item" href="/dashboard"><i class="uil-home-alt font-size-18 align-middle text-muted me-1"></i> <span class="align-middle">@lang( 'Dashboard')</span></a>
+                    {{-- <a class="dropdown-item" href="/dashboard"><i class="uil-home-alt font-size-18 align-middle text-muted me-1"></i> <span class="align-middle">@lang( 'Dashboard')</span></a> --}}
 
 
                     <form method="POST" action="{{ route('logout') }}">
