@@ -1,4 +1,5 @@
 
+
 <?php
 
 use App\Http\Controllers\DomainController;
@@ -89,7 +90,9 @@ Route::post('question', [QuestionController::class, 'store'])->name('question.st
 Route::get('question/{id}/edit', [QuestionController::class, 'edit'])->name('question.edit');
 Route::put('question/{id}', [QuestionController::class, 'update'])->name('question.update');
 Route::delete('question/{id}', [QuestionController::class, 'destroy'])->name('question.destroy');
+// AJAX endpoint untuk ambil level berdasarkan klausul (khusus form pertanyaan)
 
+Route::get('get-levels-by-klausul', [QuestionController::class, 'getLevelsByKlausul']);
 
 
 // Rute untuk Project

@@ -84,7 +84,7 @@ class ProjectController extends Controller
 
         // Hitung lockedKlausulLevel: untuk setiap klausul, cari level tertinggi yang sudah diaudit dengan skor < passing
         $lockedKlausulLevel = [];
-        $passing = 15;
+        $skalaSkorL = 50;
         foreach ($klausulIds as $kid) {
             $klausulLevels = $levels->where('klausul_id', $kid);
             $maxFailed = null;
@@ -92,7 +92,7 @@ class ProjectController extends Controller
                 $answers = AuditAnswer::where('project_id', $project->id)->where('level_id', $lvl->id)->get();
                 $count = $answers->count();
                 $score = $count > 0 ? ($answers->sum('jawaban') / $count) * 100 : null;
-                if ($score !== null && $score < $passing) {
+                if ($score !== null && $score <= $skalaSkorL) {
                     if ($maxFailed === null || $lvl->level > $maxFailed) {
                         $maxFailed = $lvl->level;
                     }
@@ -225,15 +225,15 @@ class ProjectController extends Controller
         $answers = AuditAnswer::where('project_id', $project->id)->where('level_id', $level->id)->get();
         $count = $answers->count();
         $score = $count > 0 ? ($answers->sum('jawaban') / $count) * 100 : 0;
-        // Passing grade: 15% (berdasarkan tabel: <15% = N, >=15% = P/L)
-        $passing = 15;
+        // Skala Skor L: <=50% tidak bisa lanjut
+        $skalaSkorL = 50;
         // Ambil klausul yang dipilih dari session
         $selectedKlausuls = session('selected_klausuls', []);
         // Urutkan klausul dan level
         $currentKlausulId = $level->klausul_id;
         $currentLevel = $level->level;
         // Cek apakah boleh lanjut ke level berikutnya atau ke klausul berikutnya
-        if ($score < $passing) {
+        if ($score <= $skalaSkorL) {
             // Mapping pesan saran per klausul dan level
             $advice = [
                 4 => [
@@ -279,11 +279,24 @@ class ProjectController extends Controller
                     5 => 'Disarankan agar peningkatan berkelanjutan dilakukan untuk mendukung proses yang terdefinisi, terukur, dan fokus pada kinerja.',
                 ],
             ];
-            $pesan = isset($advice[$currentKlausulId][$currentLevel]) ? $advice[$currentKlausulId][$currentLevel] : 'Skor level kurang dari 15%. Level berikutnya pada klausul ini dikunci.';
+            $pesan = isset($advice[$currentKlausulId][$currentLevel]) ? $advice[$currentKlausulId][$currentLevel] : 'Skor level kurang dari atau sama dengan 50%. Level berikutnya pada klausul ini dikunci.';
             // Simpan max level yang boleh diakses pada klausul ini
             $lockedKlausulLevel = session('locked_klausul_level', []);
-            // Simpan max level yang boleh diakses (boleh edit sampai level ini, setelahnya terkunci)
-            $lockedKlausulLevel[$currentKlausulId] = $currentLevel;
+            // Update only the current klausul's locked level if this attempt is lower than previous lock
+            if (!isset($lockedKlausulLevel[$currentKlausulId]) || $currentLevel > $lockedKlausulLevel[$currentKlausulId]) {
+                $lockedKlausulLevel[$currentKlausulId] = $currentLevel;
+            }
+
+            // Jika pindah ke klausul berikutnya, pastikan hanya level terkecil yang terbuka
+            $currentKlausulIndex = array_search($currentKlausulId, $selectedKlausuls);
+            $nextKlausulId = $selectedKlausuls[$currentKlausulIndex + 1] ?? null;
+            if ($nextKlausulId && !isset($lockedKlausulLevel[$nextKlausulId])) {
+                // Cari level terkecil di klausul berikutnya
+                $firstLevel = \App\Models\Level::where('klausul_id', $nextKlausulId)->orderBy('level', 'asc')->first();
+                if ($firstLevel) {
+                    $lockedKlausulLevel[$nextKlausulId] = $firstLevel->level;
+                }
+            }
             session(['locked_klausul_level' => $lockedKlausulLevel]);
             return redirect()->route('project.levelList', $project->id)
                 ->with('error', $pesan);

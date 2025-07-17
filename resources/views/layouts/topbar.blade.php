@@ -40,7 +40,12 @@
             <div class="dropdown d-inline-block">
                 <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
-                    
+                    @php
+                        if (!Auth::check()) {
+                            header('Location: ' . route('login'));
+                            exit;
+                        }
+                    @endphp
                     <i class="fas fa-user"></i>
                     <span class="d-none d-xl-inline-block ms-1 fw-medium font-size-15"> Hai {{Str::ucfirst(Auth::user()->username)}}</span>
                     <i class="uil-angle-down d-none d-xl-inline-block font-size-17"></i>
@@ -59,11 +64,15 @@
                 </div>
             </div>
 
+
+            <!-- Setting icon hidden by request -->
+            <!--
             <div class="dropdown d-inline-block">
                 <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
                     <i class="uil-cog"></i>
                 </button>
             </div>
+            -->
 
         </div>
     </div>

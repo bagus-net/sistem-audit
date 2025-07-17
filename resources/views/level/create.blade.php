@@ -34,7 +34,12 @@ Tambah Level
                         </div>
                         <div class="mb-3">
                             <label for="level" class="form-label">Level</label>
-                            <input type="number" name="level" id="level" class="form-control" min="2" max="5" required>
+                            <select name="level" id="level" class="form-control" required>
+                                <option value="">Pilih Level</option>
+                                @for($i = 2; $i <= 5; $i++)
+                                    <option value="{{ $i }}" {{ old('level') == $i ? 'selected' : '' }}>Level {{ $i }}</option>
+                                @endfor
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="sub_proses" class="form-label">Sub Proses</label>

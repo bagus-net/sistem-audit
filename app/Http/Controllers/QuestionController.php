@@ -17,7 +17,21 @@ class QuestionController extends Controller
     public function create()
     {
         $levels = Level::with('klausul')->get();
-        return view('question.create', compact('levels'));
+        $klausuls = \App\Models\Klausul::all();
+        return view('question.create', compact('levels', 'klausuls'));
+    }
+
+    // AJAX endpoint: return levels for a klausul (for dynamic form)
+    public function getLevelsByKlausul(Request $request)
+    {
+        $ids = $request->input('klausul_ids', []);
+        if (!is_array($ids)) {
+            $ids = [$ids];
+        }
+        $levels = \App\Models\Level::whereIn('klausul_id', $ids)->orderBy('level')->get(['id', 'level', 'klausul_id']);
+        return response()->json([
+            'levels' => $levels
+        ]);
     }
 
     public function store(Request $request)
@@ -66,4 +80,6 @@ class QuestionController extends Controller
         $question->delete();
         return redirect()->route('question.index')->with('success', 'Pertanyaan berhasil dihapus');
     }
+
+    
 }

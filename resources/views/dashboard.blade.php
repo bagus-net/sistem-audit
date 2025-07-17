@@ -28,6 +28,7 @@
 @php
     $totalProject = \App\Models\Project::count();
     $totalQuestion = \App\Models\Question::count();
+    $totalKlausul = \App\Models\Klausul::count();
 @endphp
 <div class="row mb-4">
     <div class="col-12">
@@ -36,18 +37,18 @@
     </div>
 </div>
 <div class="row mt-4">
-    <div class="col-md-6">
-        <div class="card shadow border-0 text-center" style="background: linear-gradient(135deg, #e0e7ff 0%, #f0fdfa 100%);">
+    <div class="col-md-4">
+        <div class="card shadow border-0 text-center" style="background: linear-gradient(135deg, #e0ffe7 0%, #f0fdfa 100%);">
             <div class="card-body">
                 <div class="mb-2">
-                    <i class="fa fa-list-alt fa-3x text-primary"></i>
+                    <i class="fa fa-book fa-3x text-success"></i>
                 </div>
-                <h3 class="fw-bold mb-0" style="font-size:2.5rem;">{{ $totalProject }}</h3>
-                <div class="text-muted">Total Project</div>
+                <h3 class="fw-bold mb-0" style="font-size:2.5rem;">{{ $totalKlausul }}</h3>
+                <div class="text-muted">Total Klausul</div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="card shadow border-0 text-center" style="background: linear-gradient(135deg, #fef6e4 0%, #f0fdfa 100%);">
             <div class="card-body">
                 <div class="mb-2">
@@ -58,9 +59,20 @@
             </div>
         </div>
     </div>
+    <div class="col-md-4">
+        <div class="card shadow border-0 text-center" style="background: linear-gradient(135deg, #e0e7ff 0%, #f0fdfa 100%);">
+            <div class="card-body">
+                <div class="mb-2">
+                    <i class="fa fa-list-alt fa-3x text-primary"></i>
+                </div>
+                <h3 class="fw-bold mb-0" style="font-size:2.5rem;">{{ $totalProject }}</h3>
+                <div class="text-muted">Total Project</div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="row">
+{{-- <div class="row">
         <div class="col-12">
 
             <div class="row">
@@ -177,7 +189,7 @@
                                     </form>
                                 </div>
                             </div> <!-- end modal-content-->
-                        </div> <!-- end modal dialog-->
+                        </div> <!-- end modal dialog--> --}}
                     </div> </div> </div>
 @endsection
 @section('script')

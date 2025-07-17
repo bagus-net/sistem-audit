@@ -81,7 +81,7 @@ Pilih Level Audit
                             </tbody>
                         </table>
                         <div class="text-end">
-                            <button type="submit" class="btn btn-success">Simpan Hasil Audit</button>
+                            <button type="submit" class="btn btn-success">Lihat Total Global</button>
                         </div>
                     </form>
                     <a href="{{ route('project.index') }}" class="btn btn-secondary">Kembali</a>

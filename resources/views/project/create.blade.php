@@ -38,7 +38,7 @@ Project
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Pilih Klausul</label>
-                            <select name="klausul_id[]" class="form-control" multiple required>
+                            <div class="row">
                                 @foreach($klausuls as $klausul)
                                     @php
                                         $levels = $klausul->levels ?? (\App\Models\Level::where('klausul_id', $klausul->id)->get());
@@ -47,15 +47,19 @@ Project
                                             if($level->questions()->count() > 0) { $hasQuestions = true; break; }
                                         }
                                     @endphp
-                                    <option value="{{ $klausul->id }}" {{ !$levels->count() || !$hasQuestions ? 'disabled' : '' }}>
-                                        {{ $klausul->nama_klausul }}
-                                        @if(!$levels->count() || !$hasQuestions)
-                                            (tidak bisa dipilih)
-                                        @endif
-                                    </option>
+                                    <div class="col-12 mb-1">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="klausul_id[]" id="klausul_{{ $klausul->id }}" value="{{ $klausul->id }}" {{ (!$levels->count() || !$hasQuestions) ? 'disabled' : '' }}>
+                                            <label class="form-check-label" for="klausul_{{ $klausul->id }}">
+                                                {{ $klausul->nama_klausul }}
+                                                @if(!$levels->count() || !$hasQuestions)
+                                                    <span class="text-danger">(tidak bisa dipilih)</span>
+                                                @endif
+                                            </label>
+                                        </div>
+                                    </div>
                                 @endforeach
-                            </select>
-                            <!-- Hidden input untuk level_id[] akan diisi otomatis oleh JS -->
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-success">Lanjut Audit</button>
                         <a href="{{ route('project.index') }}" class="btn btn-secondary">Kembali</a>

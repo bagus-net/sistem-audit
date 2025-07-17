@@ -24,12 +24,19 @@ Tambah Pertanyaan
                     <form action="{{ route('question.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
+                            <label for="klausul_id" class="form-label">Klausul</label>
+                            <select name="klausul_id" id="klausul_id" class="form-control" required>
+                                <option value="">Pilih Klausul</option>
+                                @foreach($klausuls as $klausul)
+                                    <option value="{{ $klausul->id }}">{{ $klausul->nama_klausul }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="level_id" class="form-label">Level</label>
                             <select name="level_id" id="level_id" class="form-control" required>
                                 <option value="">Pilih Level</option>
-                                @foreach($levels as $level)
-                                    <option value="{{ $level->id }}">{{ $level->level }} ( {{ $level->klausul->nama_klausul ?? '-' }})</option>
-                                @endforeach
+                                <!-- Options akan diisi via JS -->
                             </select>
                         </div>
                         <div id="pertanyaan-group">
@@ -50,6 +57,7 @@ Tambah Pertanyaan
 @endsection
 @section('script')
 <script>
+// Tambah pertanyaan dinamis
 document.getElementById('add-pertanyaan').addEventListener('click', function() {
     var group = document.getElementById('pertanyaan-group');
     var item = document.createElement('div');
@@ -62,6 +70,32 @@ document.getElementById('add-pertanyaan').addEventListener('click', function() {
 document.addEventListener('click', function(e) {
     if (e.target && e.target.classList.contains('remove-pertanyaan')) {
         e.target.parentElement.remove();
+    }
+});
+
+// AJAX: update level saat klausul dipilih
+document.getElementById('klausul_id').addEventListener('change', function() {
+    var klausulId = this.value;
+    var levelSelect = document.getElementById('level_id');
+    levelSelect.innerHTML = '<option value="">Memuat Level...</option>';
+    if (klausulId) {
+        fetch('/get-levels-by-klausul?klausul_ids[]=' + klausulId)
+            .then(response => response.json())
+            .then(data => {
+                levelSelect.innerHTML = '<option value="">Pilih Level</option>';
+                if (data.levels && data.levels.length > 0) {
+                    data.levels.forEach(function(level) {
+                        levelSelect.innerHTML += `<option value="${level.id}">Level ${level.level}</option>`;
+                    });
+                } else {
+                    levelSelect.innerHTML += '<option value="">Tidak ada level</option>';
+                }
+            })
+            .catch(() => {
+                levelSelect.innerHTML = '<option value="">Gagal memuat level</option>';
+            });
+    } else {
+        levelSelect.innerHTML = '<option value="">Pilih Level</option>';
     }
 });
 </script>

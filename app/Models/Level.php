@@ -17,7 +17,7 @@ class Level extends Model
 
     public function klausul()
     {
-        return $this->belongsTo(Klausul::class);
+        return $this->belongsTo(\App\Models\Klausul::class);
     }
 
     public function questions()
