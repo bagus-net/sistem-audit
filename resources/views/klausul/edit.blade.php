@@ -20,6 +20,8 @@
         @endif
         <div class="card">
             <div class="card-body">
+                @php $role = auth()->user()->role ?? null; @endphp
+                @if($role == '1')
                 <form action="{{ route('klausul.update', $klausul->id) }}" method="POST">
                     @csrf
                     <div class="mb-3">

@@ -15,7 +15,10 @@
                 <h5>Nama Klausul: {{ $klausul->nama_klausul ?? '-' }}</h5>
                 <p>Deskripsi: {{ $klausul->deskripsi ?? '-' }}</p>
                 <a href="{{ route('klausul.index') }}" class="btn btn-secondary">Kembali</a>
+                @php $role = auth()->user()->role ?? null; @endphp
+                @if($role == '1')
                 <a href="{{ route('klausul.edit', $klausul->id) }}" class="btn btn-warning">Edit</a>
+                @endif
             </div>
         </div>
     </div>

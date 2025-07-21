@@ -37,7 +37,10 @@
         @endif
         <div class="card">
             <div class="card-body">
+                @php $role = auth()->user()->role ?? null; @endphp
+                @if($role == '1')
                 <a href="{{ route('klausul.create') }}" class="btn btn-success mb-3">Tambah Klausul</a>
+                @endif
                  <div class="table-responsive">
                     <table id="datatable" class="table table-bordered dt-responsive nowrap"
                         style="border-collapse: collapse; border-spacing: 0; width: 100%;">
@@ -61,16 +64,18 @@
                                     <a href="{{ route('klausul.show', $klausul->id) }}" class="btn btn-info btn-sm" title="Lihat">
                                         <i class="fa fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('klausul.edit', $klausul->id) }}" class="btn btn-warning btn-sm" title="Edit">
-                                        <i class="fa fa-pencil-alt"></i>
-                                    </a>
-                                    <form action="{{ route('klausul.destroy', $klausul->id) }}" method="POST" style="display:inline-block;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm" title="Hapus" onclick="return confirm('Apakah Anda yakin ingin menghapus klausul ini?')">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    @if($role == '1')
+                                        <a href="{{ route('klausul.edit', $klausul->id) }}" class="btn btn-warning btn-sm" title="Edit">
+                                            <i class="fa fa-pencil-alt"></i>
+                                        </a>
+                                        <form action="{{ route('klausul.destroy', $klausul->id) }}" method="POST" style="display:inline-block;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm" title="Hapus" onclick="return confirm('Apakah Anda yakin ingin menghapus klausul ini?')">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach

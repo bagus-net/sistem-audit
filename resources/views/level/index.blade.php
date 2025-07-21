@@ -39,19 +39,24 @@
         @endif
         <div class="card">
             <div class="card-body">
+                @php $role = auth()->user()->role ?? null; @endphp
+                @if($role == '1')
                 <a href="{{ route('level.create') }}" class="btn btn-success mb-3">Tambah Level</a>
+                @endif
                 <div class="table-responsive">
                    <table id="datatable" class="table table-bordered dt-responsive nowrap"
                         style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                         <thead>
                         <tr>
-                                                <th>No</th>
-                                                <th>Sub Proses</th>
-                                                <th>Klausul</th>
-                                                <th>Level</th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                        </thead>
+                            <th>No</th>
+                            <th>Sub Proses</th>
+                            <th>Klausul</th>
+                            <th>Level</th>
+                            @if($role == '1')
+                                <th>Aksi</th>
+                            @endif
+                        </tr>
+                        </thead>
                                         <tbody>
                                             @foreach ($levels as $level)
                                             <tr>
@@ -59,7 +64,7 @@
                                                 <td style="white-space: pre-line;">{{ $level->sub_proses }}</td>
                                                 <td>{{ $level->klausul->nama_klausul ?? '-' }}</td>
                                                 <td>{{ $level->level }}</td>
-                                                
+                                                @if($role == '1')
                                                 <td>
                                                     <a href="{{ route('level.edit', $level->id) }}" class="btn btn-warning btn-sm" title="Edit">
                                                         <i class="fa fa-pencil-alt"></i>
@@ -72,6 +77,7 @@
                                                         </button>
                                                     </form>
                                                 </td>
+                                                @endif
                                             </tr>
                                             @endforeach
                                         </tbody>

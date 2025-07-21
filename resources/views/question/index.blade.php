@@ -36,19 +36,24 @@
         @endif
         <div class="card">
             <div class="card-body">
+                @php $role = auth()->user()->role ?? null; @endphp
+                @if($role == '1')
                 <a href="{{ route('question.create') }}" class="btn btn-success mb-3">Tambah Pertanyaan</a>
+                @endif
                  <div class="table-responsive">
                     <table id="datatable" class="table table-bordered dt-responsive nowrap"
                         style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                         <thead>
                         <tr>
-                                                <th>No</th>
-                                                <th>Klausul</th>
-                                                <th>Sub Proses</th>
-                                                <th>Level</th>
-                                                <th>Pertanyaan</th>
-                                                <th>Aksi</th>
-                                            </tr>
+                            <th>No</th>
+                            <th>Klausul</th>
+                            <th>Sub Proses</th>
+                            <th>Level</th>
+                            <th>Pertanyaan</th>
+                            @if($role == '1')
+                                <th>Aksi</th>
+                            @endif
+                        </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($questions as $question)
@@ -58,6 +63,7 @@
                                                 <td style="white-space: pre-line;">{{ $question->level->sub_proses ?? '-' }}</td>
                                                 <td>{{ $question->level->level ?? '-' }}</td>
                                                 <td style="white-space: pre-line;">{{ $question->pertanyaan }}</td>
+                                                @if($role == '1')
                                                 <td>
                                                     <a href="{{ route('question.edit', $question->id) }}" class="btn btn-warning btn-sm" title="Edit">
                                                         <i class="fa fa-pencil-alt"></i>
@@ -70,6 +76,7 @@
                                                         </button>
                                                     </form>
                                                 </td>
+                                                @endif
                                             </tr>
                                             @endforeach
                                         </tbody>

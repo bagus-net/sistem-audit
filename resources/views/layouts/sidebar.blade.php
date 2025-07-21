@@ -39,7 +39,7 @@
                     </a>
                 </li>
                 @php $role = auth()->user()->role ?? null; @endphp
-                @if($role == '1') {{-- Admin --}}
+                @if($role == '1' || $role == '2')
                     <li class="menu-title">@lang('Data')</li>
                     <li>
                         <a href="{{url('/klausul')}}">

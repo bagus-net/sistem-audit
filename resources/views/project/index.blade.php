@@ -24,7 +24,7 @@ Daftar Project Audit
                 <div class="card-header">Daftar Project Audit</div>
                 <div class="card-body">
                     @php $role = auth()->user()->role ?? null; @endphp
-                    @if($role == '1')
+                    @if($role == '1' || $role == '2')
                         <a class="btn btn-success mb-3" href="{{ route('project.create') }}">Tambah Project</a>
                     @endif
                     <table class="table table-bordered">
