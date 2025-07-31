@@ -47,31 +47,21 @@ class ProjectController extends Controller
         ]);
         // Simpan klausul yang dipilih ke session
         session(['selected_klausuls' => $klausulIds]);
-        // Cari level 2 dari klausul pertama
-        $firstKlausulId = $klausulIds[0];
-        $level2 = \App\Models\Level::where('klausul_id', $firstKlausulId)->where('level', 2)->first();
-        if ($level2) {
-            return redirect()->route('project.auditLevel', [$project->id, $level2->id]);
-        } else {
-            // Jika tidak ada level 2, langsung ke level list
-            return redirect()->route('project.levelList', $project->id);
-        }
+        // Setelah input project, langsung ke level list
+        return redirect()->route('project.levelList', $project->id);
     }
 
     public function levelList($id)
     {
         $project = Project::findOrFail($id);
-        // Ambil klausul dari session (input project) jika ada, jika tidak fallback ke klausul yang sudah diaudit, jika tidak ada juga tampilkan semua klausul
         $selectedKlausuls = session('selected_klausuls', []);
         $auditedLevelIds = [];
+        $klausulIds = [];
         if (!empty($selectedKlausuls)) {
             $klausulIds = $selectedKlausuls;
-            // Optionally, you can fill $auditedLevelIds with audited levels for these klausul (not strictly needed for view, but prevents undefined)
-            // $auditedLevelIds = AuditAnswer::where('project_id', $project->id)->whereIn('klausul_id', $klausulIds)->pluck('level_id')->unique()->toArray();
         } else {
             $auditedLevelIds = AuditAnswer::where('project_id', $project->id)->pluck('level_id')->unique()->toArray();
             $auditedLevels = [];
-            $klausulIds = [];
             if (!empty($auditedLevelIds)) {
                 $auditedLevels = \App\Models\Level::whereIn('id', $auditedLevelIds)->get();
                 $klausulIds = $auditedLevels->pluck('klausul_id')->unique()->toArray();
@@ -82,24 +72,83 @@ class ProjectController extends Controller
         }
         $levels = \App\Models\Level::whereIn('klausul_id', $klausulIds)->with('klausul')->get();
 
-        // Hitung lockedKlausulLevel: untuk setiap klausul, cari level tertinggi yang sudah diaudit dengan skor < passing
+        // Assign $hasAudit after $project and $klausulIds are set
+        $hasAudit = AuditAnswer::where('project_id', $project->id)->exists();
+
         $lockedKlausulLevel = [];
-        $skalaSkorL = 50;
-        foreach ($klausulIds as $kid) {
-            $klausulLevels = $levels->where('klausul_id', $kid);
-            $maxFailed = null;
-            foreach ($klausulLevels as $lvl) {
-                $answers = AuditAnswer::where('project_id', $project->id)->where('level_id', $lvl->id)->get();
-                $count = $answers->count();
-                $score = $count > 0 ? ($answers->sum('jawaban') / $count) * 100 : null;
-                if ($score !== null && $score <= $skalaSkorL) {
-                    if ($maxFailed === null || $lvl->level > $maxFailed) {
-                        $maxFailed = $lvl->level;
+        $skalaSkorL = 85;
+        // Ambil semua level yang sudah pernah diaudit (selalu boleh di-audit ulang)
+        $auditedLevelIds = AuditAnswer::where('project_id', $project->id)->pluck('level_id')->unique()->toArray();
+        if (!$hasAudit) {
+            // Belum ada audit sama sekali: hanya klausul terkecil dan level 2 yang open
+            $firstKlausulId = min($klausulIds);
+            foreach ($klausulIds as $kid) {
+                $klausulLevels = $levels->where('klausul_id', $kid);
+                foreach ($klausulLevels as $lvl) {
+                    if (in_array($lvl->id, $auditedLevelIds)) continue; // Sudah pernah diaudit, jangan dikunci
+                    if ($kid == $firstKlausulId) {
+                        if ($lvl->level != 2) {
+                            $lockedKlausulLevel[$kid][] = $lvl->level;
+                        }
+                    } else {
+                        $lockedKlausulLevel[$kid][] = $lvl->level;
                     }
                 }
             }
-            if ($maxFailed !== null) {
-                $lockedKlausulLevel[$kid] = $maxFailed;
+            session(['locked_klausul_level' => $lockedKlausulLevel]);
+        } else {
+            // Sudah ada audit: kunci level setelah gagal, tapi level yang sudah pernah diaudit tetap bisa diakses
+            foreach ($klausulIds as $kid) {
+                $klausulLevels = $levels->where('klausul_id', $kid);
+                $maxFailed = null;
+                foreach ($klausulLevels as $lvl) {
+                    $answers = AuditAnswer::where('project_id', $project->id)->where('level_id', $lvl->id)->get();
+                    $count = $answers->count();
+                    $score = $count > 0 ? ($answers->sum('jawaban') / $count) * 100 : null;
+                    if ($score !== null && $score <= $skalaSkorL) {
+                        if ($maxFailed === null || $lvl->level > $maxFailed) {
+                            $maxFailed = $lvl->level;
+                        }
+                    }
+                }
+                if ($maxFailed !== null) {
+                    // Kunci level di atas maxFailed, tapi yang sudah pernah diaudit tetap bisa diakses
+                    $klausulLevels = $levels->where('klausul_id', $kid);
+                    foreach ($klausulLevels as $lvl) {
+                        if ($lvl->level > $maxFailed && !in_array($lvl->id, $auditedLevelIds)) {
+                            $lockedKlausulLevel[$kid][] = $lvl->level;
+                        }
+                    }
+                }
+            }
+            // Tambahan: jika gagal di level 2 klausul saat ini, buka level 2 klausul berikutnya
+            // Cek session error dari saveAuditLevel (jika ada)
+            $error = session('error');
+            if ($error && preg_match('/Level berikutnya pada klausul ini dikunci/', $error)) {
+                // Cari klausul berikutnya
+                $selectedKlausuls = session('selected_klausuls', []);
+                $currentKlausulId = null;
+                // Temukan klausul yang baru saja gagal (level berapapun yang baru saja di-audit)
+                foreach ($klausulIds as $kid) {
+                    $klausulLevels = $levels->where('klausul_id', $kid);
+                    foreach ($klausulLevels as $lvl) {
+                        if (in_array($lvl->id, $auditedLevelIds)) {
+                            $currentKlausulId = $kid;
+                            break 2;
+                        }
+                    }
+                }
+                if ($currentKlausulId && $selectedKlausuls) {
+                    $currentKlausulIndex = array_search($currentKlausulId, $selectedKlausuls);
+                    $nextKlausulId = $selectedKlausuls[$currentKlausulIndex + 1] ?? null;
+                    if ($nextKlausulId) {
+                        // Buka level 2 klausul berikutnya (jangan dikunci)
+                        if (isset($lockedKlausulLevel[$nextKlausulId])) {
+                            $lockedKlausulLevel[$nextKlausulId] = array_diff($lockedKlausulLevel[$nextKlausulId], [2]);
+                            if (empty($lockedKlausulLevel[$nextKlausulId])) unset($lockedKlausulLevel[$nextKlausulId]);
+                        }
+                    }
+                }
             }
         }
 
@@ -142,7 +191,6 @@ class ProjectController extends Controller
     public function show($id)
     {
         $project = Project::with(['auditAnswers.level.klausul', 'auditAnswers.question'])->findOrFail($id);
-        // Filter only audited levels (levels that have at least one answer)
         $auditedAnswers = $project->auditAnswers;
         // Group by klausul_id and get the highest level audited for each klausul
         $klausulLevelMap = [];
@@ -153,24 +201,17 @@ class ProjectController extends Controller
                 $klausulLevelMap[$klausulId] = $levelNum;
             }
         }
-        // For table: only show answers for audited levels (not for levels that are not audited)
+        // Only show answers for audited levels (not for levels that are not audited)
         $auditedLevelIds = [];
         foreach ($klausulLevelMap as $klausulId => $maxLevel) {
-            // Get all level ids for this klausul up to maxLevel
             $levelIds = \App\Models\Level::where('klausul_id', $klausulId)
                 ->where('level', '<=', $maxLevel)
                 ->pluck('id')->toArray();
             $auditedLevelIds = array_merge($auditedLevelIds, $levelIds);
         }
-        // Only show answers for these level ids
         $filteredAnswers = $auditedAnswers->whereIn('level_id', $auditedLevelIds);
 
-        // Calculate global recap score as per formula
-        $totalKlausul = count($klausulLevelMap);
-        $sumLevel = array_sum($klausulLevelMap);
-        $globalRecap = $totalKlausul > 0 ? ($sumLevel / $totalKlausul) : 0;
-
-        // For per-level score (optional, can be removed if not needed)
+        // For per-level score
         $totals = [];
         $levels = $filteredAnswers->groupBy('level_id');
         foreach ($levels as $levelId => $answers) {
@@ -179,14 +220,33 @@ class ProjectController extends Controller
             $totals[$levelId] = $score;
         }
 
+        // Calculate Nilai Maturity: untuk setiap klausul, cari level tertinggi yang skornya > 50%
+        $validLevels = [];
+        foreach ($klausulLevelMap as $klausulId => $maxLevel) {
+            $levelObjs = \App\Models\Level::where('klausul_id', $klausulId)->orderBy('level', 'desc')->get();
+            $found = false;
+            if ($levelObjs) {
+                foreach ($levelObjs as $levelObj) {
+                    $levelId = $levelObj->id;
+                    $score = isset($totals[$levelId]) ? $totals[$levelId] : null;
+                    if ($score !== null && $score > 50) {
+                        $validLevels[] = $levelObj->level;
+                        $found = true;
+                        break; // Ambil hanya level tertinggi yang > 50% untuk klausul ini
+                    }
+                }
+            }
+            // Jika tidak ada level dengan skor > 50%, klausul ini tidak dihitung sama sekali
+        }
+        $grandTotal = count($validLevels) > 0 ? (array_sum($validLevels) / count($validLevels)) : 0;
+
         return view('project.show', [
             'project' => $project,
             'totals' => $totals,
             'total' => 0, // not used anymore
             'filteredAnswers' => $filteredAnswers,
-            'globalRecap' => $globalRecap,
+            'grandTotal' => $grandTotal,
             'klausulLevelMap' => $klausulLevelMap,
-            'totalKlausul' => $totalKlausul,
         ]);
     }
 
@@ -225,81 +285,33 @@ class ProjectController extends Controller
         $answers = AuditAnswer::where('project_id', $project->id)->where('level_id', $level->id)->get();
         $count = $answers->count();
         $score = $count > 0 ? ($answers->sum('jawaban') / $count) * 100 : 0;
-        // Skala Skor L: <=50% tidak bisa lanjut
-        $skalaSkorL = 50;
+        // Skala Skor F: <85% tidak bisa lanjut
+        $skalaSkorL = 85;
         // Ambil klausul yang dipilih dari session
         $selectedKlausuls = session('selected_klausuls', []);
         // Urutkan klausul dan level
         $currentKlausulId = $level->klausul_id;
         $currentLevel = $level->level;
         // Cek apakah boleh lanjut ke level berikutnya atau ke klausul berikutnya
-        if ($score <= $skalaSkorL) {
-            // Mapping pesan saran per klausul dan level
-            $advice = [
-                4 => [
-                    2 => 'Pemahaman konteks organisasi perlu ditingkatkan. Disarankan penerapan aktivitas dasar yang lengkap dan terarah.',
-                    3 => 'Disarankan untuk mendefinisikan proses secara jelas dan memanfaatkan aset organisasi secara terstruktur guna mendukung pemahaman konteks organisasi.',
-                    4 => 'Disarankan proses didefinisikan dengan baik dan kinerjanya diukur secara kuantitatif untuk memahami konteks organisasi secara menyeluruh.',
-                    5 => 'Disarankan agar proses didefinisikan dengan jelas, kinerjanya diukur secara konsisten, dan perbaikan berkelanjutan diterapkan untuk mendukung pemahaman konteks organisasi.',
-                ],
-                5 => [
-                    2 => 'Disarankan agar kepemimpinan menerapkan serangkaian aktivitas dasar yang lengkap dan terstruktur untuk mencapai tujuan organisasi secara efektif.',
-                    3 => 'Disarankan agar kepemimpinan mendefinisikan proses secara jelas dan memanfaatkan aset organisasi secara terorganisir untuk mencapai tujuan secara efektif.',
-                    4 => 'Disarankan agar kepemimpinan memastikan proses didefinisikan dengan baik dan kinerjanya diukur secara kuantitatif untuk meningkatkan efektivitas pengelolaan.',
-                    5 => 'Disarankan agar kepemimpinan terus mendefinisikan proses dengan jelas, mengukur kinerja secara rutin, dan menerapkan perbaikan berkelanjutan untuk mencapai hasil yang optimal.',
-                ],
-                6 => [
-                    2 => 'Disarankan agar proses perencanaan mencapai tujuannya melalui penerapan aktivitas dasar yang lengkap, yang dapat dikarakteristikkan sebagai dilakukan',
-                    3 => 'Disarankan agar proses perencanaan mencapai tujuannya dengan cara yang lebih terorganisir melalui pemanfaatan aset organisasi, di mana proses dirancang dan didefinisikan dengan baik',
-                    4 => 'Disarankan agar proses perencanaan mencapai tujuannya melalui perencanaan yang didefinisikan dengan baik dan diukur kinerjanya secara kuantitatif',
-                    5 => 'Disarankan agar proses perencanaan mencapai tujuannya, didefinisikan dengan baik, kinerjanya diukur, dan perbaikan terus menerus dilakukan untuk meningkatkan kinerja',
-                ],
-                7 => [
-                    2 => 'Disarankan agar aktivitas pendukung dijalankan konsisten untuk mendukung tercapainya tujuan proses.',
-                    3 => 'Disarankan agar aset organisasi dimanfaatkan secara terorganisir melalui aktivitas pendukung untuk memastikan proses berjalan efektif.',
-                    4 => 'Disarankan agar aktivitas pendukung dijalankan secara konsisten untuk menjaga kinerja proses yang terdefinisi dengan baik dan terukur secara kuantitatif.',
-                    5 => 'Disarankan agar aktivitas pendukung dijalankan konsisten guna mendukung proses terdefinisi, terukur, dan terus ditingkatkan.',
-                ],
-                8 => [
-                    2 => 'Disarankan agar aktivitas operasional dijalankan secara menyeluruh dan konsisten untuk memastikan proses mencapai tujuannya secara efektif.',
-                    3 => 'Disarankan agar aset organisasi dimanfaatkan secara optimal dalam aktivitas operasional yang terstruktur untuk mendukung proses yang telah didefinisikan dengan baik.',
-                    4 => 'Disarankan agar aktivitas operasional dijalankan secara konsisten untuk mendukung proses yang terdefinisi dengan baik dan kinerjanya terukur secara kuantitatif.',
-                    5 => 'Disarankan agar aktivitas operasional dilaksanakan secara konsisten untuk mendukung proses yang terdefinisi, terukur, dan terus ditingkatkan melalui perbaikan berkelanjutan.',
-                ],
-                9 => [
-                    2 => 'Disarankan agar evaluasi kinerja dilakukan lebih terstruktur untuk meningkatkan efektivitas proses yang masih bersifat intuitif.',
-                    3 => 'Disarankan agar evaluasi kinerja dilakukan secara konsisten untuk mendukung pencapaian tujuan proses melalui aktivitas yang sudah berjalan lengkap.',
-                    4 => 'Disarankan agar evaluasi kinerja dilakukan secara terencana dengan memanfaatkan aset organisasi untuk mendukung proses yang terdefinisi dengan baik dan terorganisir.',
-                    5 => 'Disarankan agar evaluasi kinerja dilakukan secara konsisten untuk mendukung proses yang terdefinisi, terukur, dan terus ditingkatkan melalui perbaikan berkelanjutan.',
-                ],
-                10 => [
-                    2 => 'Disarankan agar aktivitas peningkatan dilakukan secara konsisten untuk mendukung pencapaian tujuan proses melalui langkah-langkah dasar yang telah dijalankan secara lengkap.',
-                    3 => 'Disarankan agar aktivitas peningkatan dilakukan secara terorganisir dengan memanfaatkan aset organisasi untuk mendukung proses yang telah didefinisikan dengan baik.',
-                    4 => 'Disarankan agar peningkatan difokuskan pada proses yang terdefinisi dan terukur untuk menjaga pencapaian tujuan.',
-                    5 => 'Disarankan agar peningkatan berkelanjutan dilakukan untuk mendukung proses yang terdefinisi, terukur, dan fokus pada kinerja.',
-                ],
-            ];
-            $pesan = isset($advice[$currentKlausulId][$currentLevel]) ? $advice[$currentKlausulId][$currentLevel] : 'Skor level kurang dari atau sama dengan 50%. Level berikutnya pada klausul ini dikunci.';
+        if ($score < $skalaSkorL) {
             // Simpan max level yang boleh diakses pada klausul ini
             $lockedKlausulLevel = session('locked_klausul_level', []);
-            // Update only the current klausul's locked level if this attempt is lower than previous lock
             if (!isset($lockedKlausulLevel[$currentKlausulId]) || $currentLevel > $lockedKlausulLevel[$currentKlausulId]) {
                 $lockedKlausulLevel[$currentKlausulId] = $currentLevel;
             }
 
-            // Jika pindah ke klausul berikutnya, pastikan hanya level terkecil yang terbuka
+            // Jika pindah ke klausul berikutnya, pastikan level 2 klausul berikutnya terbuka (tidak dikunci)
             $currentKlausulIndex = array_search($currentKlausulId, $selectedKlausuls);
             $nextKlausulId = $selectedKlausuls[$currentKlausulIndex + 1] ?? null;
-            if ($nextKlausulId && !isset($lockedKlausulLevel[$nextKlausulId])) {
-                // Cari level terkecil di klausul berikutnya
-                $firstLevel = \App\Models\Level::where('klausul_id', $nextKlausulId)->orderBy('level', 'asc')->first();
-                if ($firstLevel) {
-                    $lockedKlausulLevel[$nextKlausulId] = $firstLevel->level;
+            if ($nextKlausulId) {
+                if (isset($lockedKlausulLevel[$nextKlausulId])) {
+                    $lockedKlausulLevel[$nextKlausulId] = array_diff((array)$lockedKlausulLevel[$nextKlausulId], [2]);
+                    if (empty($lockedKlausulLevel[$nextKlausulId])) unset($lockedKlausulLevel[$nextKlausulId]);
                 }
             }
             session(['locked_klausul_level' => $lockedKlausulLevel]);
             return redirect()->route('project.levelList', $project->id)
-                ->with('error', $pesan);
+                ->with('error', 'Skor level tidak memenuhi syarat minimum. Level berikutnya pada klausul ini dikunci.');
         } else {
             // Jika skor >= 15%, lanjut ke level berikutnya pada klausul yang sama
             $nextLevel = \App\Models\Level::where('klausul_id', $currentKlausulId)
@@ -352,12 +364,42 @@ class ProjectController extends Controller
             $score = $count > 0 ? (collect($answers)->sum('jawaban') / $count) * 100 : 0;
             $totals[$levelId] = $score;
         }
-        // Calculate global recap score as per formula
-        $totalKlausul = count($klausulLevelMap);
-        $sumLevel = array_sum($klausulLevelMap);
-        $globalRecap = $totalKlausul > 0 ? ($sumLevel / $totalKlausul) : 0;
-        $pdf = FacadePdf::loadView('project.report_pdf', compact('project', 'totals', 'globalRecap'));
-        return $pdf->download('report_project_'.$project->id.'.pdf');
+        // Perhitungan Nilai Maturity (grandTotal) sama seperti di show:
+        $validLevels = [];
+        foreach ($klausulLevelMap as $klausulId => $maxLevel) {
+            $levelObjs = \App\Models\Level::where('klausul_id', $klausulId)->orderBy('level', 'desc')->get();
+            if ($levelObjs) {
+                foreach ($levelObjs as $levelObj) {
+                    $levelId = $levelObj->id;
+                    $score = isset($totals[$levelId]) ? $totals[$levelId] : null;
+                    if ($score !== null && $score > 50) {
+                        $validLevels[] = $levelObj->level;
+                        break; // Ambil hanya level tertinggi yang > 50% untuk klausul ini
+                    }
+                }
+            }
+        }
+        $grandTotalRaw = count($validLevels) > 0 ? (array_sum($validLevels) / count($validLevels)) : 0;
+        // Pembulatan ke rentang maturity
+        if ($grandTotalRaw <= 0.50) {
+            $grandTotal = 0;
+        } elseif ($grandTotalRaw <= 1.50) {
+            $grandTotal = 1;
+        } elseif ($grandTotalRaw <= 2.50) {
+            $grandTotal = 2;
+        } elseif ($grandTotalRaw <= 3.50) {
+            $grandTotal = 3;
+        } elseif ($grandTotalRaw <= 4.50) {
+            $grandTotal = 4;
+        } else {
+            $grandTotal = 5;
+        }
+        $pdf = FacadePdf::loadView('project.report_pdf', compact('project', 'totals', 'grandTotal', 'grandTotalRaw'));
+        $namaProject = trim(preg_replace('/[^A-Za-z0-9\-]/', '-', $project->nama_project), '-');
+        $user = auth()->user() ? trim(preg_replace('/[^A-Za-z0-9\-]/', '-', auth()->user()->username), '-') : 'user';
+        $tanggal = date('d-m-Y_H-i');
+        $filename = $namaProject . ' - ' . $user . ' - ' . $tanggal . '.pdf';
+        return $pdf->download($filename);
     }
 
     public function destroy($id)

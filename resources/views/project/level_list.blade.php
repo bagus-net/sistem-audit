@@ -11,7 +11,7 @@ Pilih Level Audit
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                 @if(session('success'))
+                @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
@@ -21,8 +21,13 @@ Pilih Level Audit
                 {{ session('error') }}
             </div>
         @endif
+            <div class="card">
+                {{-- ALERTS DIHILANGKAN SESUAI PERMINTAAN --}}
                 <div class="card-header">Pilih Level untuk Audit Project: {{ $project->nama_project }}</div>
                 <div class="card-body">
+                    {{-- <div class="alert alert-info" style="font-size: 15px;">
+                        <b>Catatan:</b> Hanya level 2 pada klausul pertama yang terbuka. Untuk memulai audit, tekan tombol <b>Audit</b> pada kolom Aksi.
+                    </div> --}}
                     @php
     // Hitung skor per level
     $levelScores = [];
@@ -38,42 +43,63 @@ Pilih Level Audit
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>No</th>
+                                    <th class="text-center">No</th>
                                     <th>Klausul</th>
                                     <th>Sub Proses</th>
-                                    <th>Level</th>
-                                    <th>Skor (%)</th>
+                                    <th class="text-center">Level</th>
+                                    <th class="text-center">Skor & Skala (%)</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($levels as $level)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
                                     <td>{{ $level->klausul->nama_klausul ?? '-' }}</td>
                                     <td style="white-space: pre-line;">{{ $level->sub_proses }}</td>
-                                    <td>{{ $level->level }}</td>
-                                    <td>{{ number_format($levelScores[$level->id], 2) }}</td>
+                                    <td class="text-center">{{ $level->level }}</td>
+                                    <td class="text-center">
+                                        {{ number_format($levelScores[$level->id], 2) }}
+                                        @php
+                                            $score = $levelScores[$level->id];
+                                            if ($score <= 15) {
+                                                $skala = 'N';
+                                            } elseif ($score <= 50) {
+                                                $skala = 'P';
+                                            } elseif ($score <= 85) {
+                                                $skala = 'L';
+                                            } else {
+                                                $skala = 'F';
+                                            }
+                                        @endphp
+                                        <span class="badge bg-primary">{{ $skala }}</span>
+                                    </td>
                                     <td>
                                         @php
                                             $isLocked = false;
-                                            $maxAllowed = isset($lockedKlausulLevel[$level->klausul_id]) ? $lockedKlausulLevel[$level->klausul_id] : null;
-                                            if ($maxAllowed !== null && $level->level > $maxAllowed) {
-                                                $isLocked = true;
+                                            $lockInfo = isset($lockedKlausulLevel[$level->klausul_id]) ? $lockedKlausulLevel[$level->klausul_id] : null;
+                                            if (!in_array($level->id, $auditedLevelIds)) {
+                                                if (is_array($lockInfo) && in_array($level->level, $lockInfo)) {
+                                                    $isLocked = true;
+                                                } elseif (is_int($lockInfo) && $level->level > $lockInfo) {
+                                                    $isLocked = true;
+                                                }
                                             }
                                         @endphp
                                         @if($isLocked)
                                             <button class="btn btn-secondary btn-sm" title="Level terkunci" disabled>
                                                 <i class="fa fa-lock"></i> Terkunci
                                             </button>
-                                        @elseif(in_array($level->id, $auditedLevelIds))
-                                            <a href="{{ route('project.auditLevel', [$project->id, $level->id]) }}" class="btn btn-warning btn-sm" title="Edit Audit">
-                                                <i class="fa fa-pencil-alt"></i>
-                                            </a>
                                         @else
-                                            <a href="{{ route('project.auditLevel', [$project->id, $level->id]) }}" class="btn btn-primary btn-sm" title="Audit Level Ini">
-                                                <i class="fa fa-clipboard-check"></i>
-                                            </a>
+                                            @if(in_array($level->id, $auditedLevelIds))
+                                                <a href="{{ route('project.auditLevel', [$project->id, $level->id]) }}" class="btn btn-warning btn-sm" title="Edit Audit">
+                                                    <i class="fa fa-pencil-alt"></i>
+                                                </a>
+                                            @else
+                                                <a href="{{ route('project.auditLevel', [$project->id, $level->id]) }}" class="btn btn-primary btn-sm" title="Audit Level Ini">
+                                                    <i class="fa fa-clipboard-check"></i>
+                                                </a>
+                                            @endif
                                         @endif
                                     </td>
                                 </tr>
@@ -81,7 +107,7 @@ Pilih Level Audit
                             </tbody>
                         </table>
                         <div class="text-end">
-                            <button type="submit" class="btn btn-success">Lihat Total Global</button>
+                            <button type="submit" class="btn btn-success">Simpan</button>
                         </div>
                     </form>
                     <a href="{{ route('project.index') }}" class="btn btn-secondary">Kembali</a>

@@ -61,7 +61,7 @@ Project
                                 @endforeach
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-success">Lanjut Audit</button>
+                        <button type="submit" class="btn btn-success">Simpan</button>
                         <a href="{{ route('project.index') }}" class="btn btn-secondary">Kembali</a>
                     </form>
                 </div>

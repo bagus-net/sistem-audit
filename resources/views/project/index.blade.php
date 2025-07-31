@@ -48,9 +48,9 @@ Daftar Project Audit
                                         <i class="fa fa-clipboard-check"></i>
                                     </a>
                                     @endif
-                                    <a href="{{ route('project.show', $project->id) }}" class="btn btn-primary btn-sm" title="Lihat Hasil">
+                                    {{-- <a href="{{ route('project.show', $project->id) }}" class="btn btn-primary btn-sm" title="Lihat Hasil">
                                         <i class="fa fa-eye"></i>
-                                    </a>
+                                    </a> --}}
                                     <a href="{{ route('project.downloadPdf', $project->id) }}" class="btn btn-success btn-sm" title="Download Report PDF">
                                         <i class="fa fa-file-pdf"></i>
                                     </a>
