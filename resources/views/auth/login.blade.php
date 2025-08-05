@@ -27,8 +27,8 @@
                     <div class="card">
                         <div class="card-body p-4">
                             <div class="text-center mt-2">
-                                <h5 class="text-primary">Sistem Audit Layanan TI</h5>
-                                <p class="text-muted">Sign in to continue.</p>
+                                <h5 class="text-primary">Sistem Pengukuran Kinerja Layanan TI</h5>
+                                <p class="text-muted">Login to continue.</p>
                             </div>
                             <div class="p-2 mt-4">
 
@@ -65,7 +65,7 @@
                                     </div>
 
                                     <div class="mt-3 text-end">
-                                        <button class="btn btn-primary w-sm waves-effect waves-light" type="submit">Log In</button>
+                                        <button class="btn btn-primary w-sm waves-effect waves-light" type="submit">Login</button>
                                     </div>
 
                                     {{-- <div class="mt-4 text-center">

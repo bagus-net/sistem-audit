@@ -220,25 +220,27 @@ class ProjectController extends Controller
             $totals[$levelId] = $score;
         }
 
-        // Calculate Nilai Maturity: untuk setiap klausul, cari level tertinggi yang skornya > 50%
-        $validLevels = [];
-        foreach ($klausulLevelMap as $klausulId => $maxLevel) {
-            $levelObjs = \App\Models\Level::where('klausul_id', $klausulId)->orderBy('level', 'desc')->get();
-            $found = false;
-            if ($levelObjs) {
-                foreach ($levelObjs as $levelObj) {
-                    $levelId = $levelObj->id;
-                    $score = isset($totals[$levelId]) ? $totals[$levelId] : null;
-                    if ($score !== null && $score > 50) {
-                        $validLevels[] = $levelObj->level;
-                        $found = true;
-                        break; // Ambil hanya level tertinggi yang > 50% untuk klausul ini
-                    }
+        // Perhitungan Nilai Maturity: jumlahkan level terakhir tiap klausul, bagi total klausul
+        $lastLevels = [];
+        foreach($auditedAnswers as $answer) {
+            $levelObj = $answer->level;
+            if ($levelObj && $levelObj->klausul_id) {
+                $klausulId = $levelObj->klausul_id;
+                if (!isset($lastLevels[$klausulId]) || $levelObj->level > $lastLevels[$klausulId]['level']) {
+                    $lastLevels[$klausulId] = [
+                        'level' => $levelObj->level,
+                        'levelObj' => $levelObj,
+                        'levelId' => $levelObj->id
+                    ];
                 }
             }
-            // Jika tidak ada level dengan skor > 50%, klausul ini tidak dihitung sama sekali
         }
-        $grandTotal = count($validLevels) > 0 ? (array_sum($validLevels) / count($validLevels)) : 0;
+        $levelSum = 0;
+        $levelCount = count($lastLevels);
+        foreach ($lastLevels as $klausulId => $data) {
+            $levelSum += $data['level'];
+        }
+        $grandTotal = $levelCount > 0 ? ($levelSum / $levelCount) : 0;
 
         return view('project.show', [
             'project' => $project,
@@ -364,22 +366,30 @@ class ProjectController extends Controller
             $score = $count > 0 ? (collect($answers)->sum('jawaban') / $count) * 100 : 0;
             $totals[$levelId] = $score;
         }
-        // Perhitungan Nilai Maturity (grandTotal) sama seperti di show:
-        $validLevels = [];
-        foreach ($klausulLevelMap as $klausulId => $maxLevel) {
-            $levelObjs = \App\Models\Level::where('klausul_id', $klausulId)->orderBy('level', 'desc')->get();
-            if ($levelObjs) {
-                foreach ($levelObjs as $levelObj) {
-                    $levelId = $levelObj->id;
-                    $score = isset($totals[$levelId]) ? $totals[$levelId] : null;
-                    if ($score !== null && $score > 50) {
-                        $validLevels[] = $levelObj->level;
-                        break; // Ambil hanya level tertinggi yang > 50% untuk klausul ini
+        // Perhitungan Nilai Maturity: jumlahkan level yang muncul di report (level terakhir tiap klausul),
+        // lalu bagi dengan total klausul yang muncul di report
+        $lastLevels = [];
+        if ($auditedAnswers) {
+            foreach ($auditedAnswers as $answer) {
+                $levelObj = $answer->level;
+                if ($levelObj && $levelObj->klausul_id) {
+                    $klausulId = $levelObj->klausul_id;
+                    if (!isset($lastLevels[$klausulId]) || $levelObj->level > $lastLevels[$klausulId]['level']) {
+                        $lastLevels[$klausulId] = [
+                            'level' => $levelObj->level,
+                            'levelObj' => $levelObj,
+                            'levelId' => $levelObj->id
+                        ];
                     }
                 }
             }
         }
-        $grandTotalRaw = count($validLevels) > 0 ? (array_sum($validLevels) / count($validLevels)) : 0;
+        $levelSum = 0;
+        $levelCount = count($lastLevels);
+        foreach ($lastLevels as $klausulId => $data) {
+            $levelSum += $data['level'];
+        }
+        $grandTotalRaw = $levelCount > 0 ? ($levelSum / $levelCount) : 0;
         // Pembulatan ke rentang maturity
         if ($grandTotalRaw <= 0.50) {
             $grandTotal = 0;

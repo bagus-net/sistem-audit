@@ -93,31 +93,50 @@ Hasil Audit Project
                         <div class="col-md-6">
                             <div class="alert alert-success">
                                 <strong>Skor Maturity:</strong> <br>
-                                <span style="font-size:1.5em"><strong>{{ number_format($grandTotal, 2) }}</strong></span>
                                 @php
-                                    // Mapping Nilai Maturity dan Level Maturity
-                                    $nilaiMaturity = 0;
-                                    $levelMaturity = 'Incomplete';
-                                    if ($grandTotal > 0.5 && $grandTotal <= 1.5) {
-                                        $nilaiMaturity = 1;
-                                        $levelMaturity = 'Initial';
-                                    } elseif ($grandTotal > 1.5 && $grandTotal <= 2.5) {
-                                        $nilaiMaturity = 2;
-                                        $levelMaturity = 'Managed';
-                                    } elseif ($grandTotal > 2.5 && $grandTotal <= 3.5) {
-                                        $nilaiMaturity = 3;
-                                        $levelMaturity = 'Defined';
-                                    } elseif ($grandTotal > 3.5 && $grandTotal <= 4.5) {
-                                        $nilaiMaturity = 4;
-                                        $levelMaturity = 'Quantitative';
-                                    } elseif ($grandTotal > 4.5) {
-                                        $nilaiMaturity = 5;
-                                        $levelMaturity = 'Optimizing';
-                                    } elseif ($grandTotal > 0) {
+                                    // Hitung level terakhir tiap klausul
+                                    $lastLevels = [];
+                                    foreach($project->auditAnswers as $answer) {
+                                        $levelObj = $answer->level;
+                                        if ($levelObj && $levelObj->klausul_id) {
+                                            $klausulId = $levelObj->klausul_id;
+                                            if (!isset($lastLevels[$klausulId]) || $levelObj->level > $lastLevels[$klausulId]['level']) {
+                                                $lastLevels[$klausulId] = [
+                                                    'level' => $levelObj->level,
+                                                    'levelObj' => $levelObj,
+                                                    'levelId' => $levelObj->id
+                                                ];
+                                            }
+                                        }
+                                    }
+                                    $levelSum = 0;
+                                    $levelCount = count($lastLevels);
+                                    foreach ($lastLevels as $klausulId => $data) {
+                                        $levelSum += $data['level'];
+                                    }
+                                    $grandTotalRaw = $levelCount > 0 ? ($levelSum / $levelCount) : 0;
+                                    // Pembulatan ke rentang maturity
+                                    if ($grandTotalRaw <= 0.50) {
                                         $nilaiMaturity = 0;
                                         $levelMaturity = 'Incomplete';
+                                    } elseif ($grandTotalRaw <= 1.50) {
+                                        $nilaiMaturity = 1;
+                                        $levelMaturity = 'Initial';
+                                    } elseif ($grandTotalRaw <= 2.50) {
+                                        $nilaiMaturity = 2;
+                                        $levelMaturity = 'Managed';
+                                    } elseif ($grandTotalRaw <= 3.50) {
+                                        $nilaiMaturity = 3;
+                                        $levelMaturity = 'Defined';
+                                    } elseif ($grandTotalRaw <= 4.50) {
+                                        $nilaiMaturity = 4;
+                                        $levelMaturity = 'Quantitative';
+                                    } else {
+                                        $nilaiMaturity = 5;
+                                        $levelMaturity = 'Optimizing';
                                     }
                                 @endphp
+                                <span style="font-size:1.5em"><strong>{{ number_format($grandTotalRaw, 2) }}</strong></span>
                                 <div class="mt-2">
                                     <strong>Nilai Maturity:</strong> {{ $nilaiMaturity }}<br>
                                     <strong>Level Maturity:</strong> {{ $levelMaturity }}

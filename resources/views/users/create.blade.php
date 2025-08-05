@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-    Add New User
+    Tambah User Baru
 @endsection
 
 @section('content')
@@ -9,7 +9,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h4>Add New User</h4>
+                    <h4>Tambah User Baru</h4>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('users.store') }}" method="POST">
@@ -52,7 +52,7 @@
                             @enderror
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Save User</button>
+                        <button type="submit" class="btn btn-primary">Simpan User</button>
                         <a href="{{ route('users.index') }}" class="btn btn-secondary">Cancel</a>
                     </form>
                 </div>

@@ -56,11 +56,29 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($totals as $levelId => $score)
+            @php
+                // Ambil level terakhir yang digarap untuk setiap klausul
+                $lastLevels = [];
+                foreach($project->auditAnswers as $answer) {
+                    $levelObj = $answer->level;
+                    if ($levelObj && $levelObj->klausul_id) {
+                        $klausulId = $levelObj->klausul_id;
+                        if (!isset($lastLevels[$klausulId]) || $levelObj->level > $lastLevels[$klausulId]['level']) {
+                            $lastLevels[$klausulId] = [
+                                'level' => $levelObj->level,
+                                'levelObj' => $levelObj,
+                                'score' => $totals[$levelObj->id] ?? 0
+                            ];
+                        }
+                    }
+                }
+            @endphp
+            @foreach($lastLevels as $klausulId => $data)
                 @php
-                    $levelObj = $project->auditAnswers->where('level_id', $levelId)->first()->level ?? null;
+                    $levelObj = $data['levelObj'];
                     $klausulName = $levelObj && $levelObj->klausul ? $levelObj->klausul->nama_klausul : '-';
-                    $levelName = $levelObj ? $levelObj->level : $levelId;
+                    $levelName = $levelObj ? $levelObj->level : '-';
+                    $score = $data['score'];
                     if ($score <= 15) {
                         $skala = 'N';
                         $desc = 'Tidak Tercapai. Tidak terdapat aktivitas yang dilakukan dalam mencapai tujuan bisnis.';
@@ -75,13 +93,11 @@
                         $desc = 'Secara Keseluruhan Tercapai. Proses telah diimplementasikan dan dikelola dengan baik, berada pada tingkat yang matang.';
                     }
                 @endphp
-                @if($skala == 'L' || $skala == 'F')
                 <tr>
                     <td>{{ $klausulName }}</td>
                     <td style="text-align:center;">{{ $levelName }}</td>
                     <td>{{ $desc }}</td>
                 </tr>
-                @endif
             @endforeach
         </tbody>
     </table>
@@ -107,21 +123,37 @@
                     4 => ['label' => 'Quantitative', 'saran' => 'Perusahaan ini berorientasi pada data, dengan peningkatan kinerja yang berbasis kuantitatif.'],
                     5 => ['label' => 'Optimizing', 'saran' => 'Perusahaan ini berfokus pada perbaikan berkelanjutan.'],
                 ];
-                // Ambil hanya level dengan skor > 50% (L/F)
-                $validLevels = [];
-                foreach($totals as $levelId => $score) {
-                    if ($score > 50) {
-                        $levelObj = $project->auditAnswers->where('level_id', $levelId)->first()->level ?? null;
-                        if ($levelObj) {
-                            $validLevels[] = $levelObj->level;
-                        }
-                    }
+                // Hitung nilai maturity dari level terakhir tiap klausul
+                $levelSum = 0;
+                $levelCount = count($lastLevels);
+                foreach ($lastLevels as $klausulId => $data) {
+                    $levelSum += $data['level'];
                 }
-                // Gunakan grandTotalRaw dan grandTotal dari controller
-                $rentangNilai = isset($grandTotalRaw) ? number_format($grandTotalRaw, 2) : '0.00';
-                $nilaiMaturity = isset($grandTotal) ? $grandTotal : 0;
-                $levelMaturity = $maturityLevels[$nilaiMaturity]['label'] ?? '-';
-                $saran = $maturityLevels[$nilaiMaturity]['saran'] ?? '-';
+                $grandTotalRaw = $levelCount > 0 ? ($levelSum / $levelCount) : 0;
+                // Pembulatan ke rentang maturity
+                if ($grandTotalRaw <= 0.50) {
+                    $grandTotal = 0;
+                } elseif ($grandTotalRaw <= 1.50) {
+                    $grandTotal = 1;
+                } elseif ($grandTotalRaw <= 2.50) {
+                    $grandTotal = 2;
+                } elseif ($grandTotalRaw <= 3.50) {
+                    $grandTotal = 3;
+                } elseif ($grandTotalRaw <= 4.50) {
+                    $grandTotal = 4;
+                } else {
+                    $grandTotal = 5;
+                }
+                $rentangNilai = number_format($grandTotalRaw, 2);
+                if (floatval($rentangNilai) == 0) {
+                    $nilaiMaturity = '';
+                    $levelMaturity = '';
+                    $saran = '';
+                } else {
+                    $nilaiMaturity = $grandTotal;
+                    $levelMaturity = $maturityLevels[$nilaiMaturity]['label'] ?? '';
+                    $saran = $maturityLevels[$nilaiMaturity]['saran'] ?? '';
+                }
             @endphp
             <tr>
                 <td style="text-align:center;">{{ $rentangNilai }}</td>

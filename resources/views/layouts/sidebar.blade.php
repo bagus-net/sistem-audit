@@ -72,7 +72,7 @@
                     <li>
                         <a href="{{url('users')}}">
                             <i class="uil-users-alt"></i>
-                            <span>@lang('Users')</span>
+                            <span>@lang('Data User')</span>
                         </a>
                     </li>
                 @endif

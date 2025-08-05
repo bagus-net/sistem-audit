@@ -10,8 +10,8 @@
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">Users List</h4>
-                        <a href="{{ route('users.create') }}" class="btn btn-primary">Add New User</a>
+                        <h4 class="mb-0">Data User</h4>
+                        <a href="{{ route('users.create') }}" class="btn btn-primary">Tambah User Baru</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -29,7 +29,7 @@
                                     <th>Username</th>
                                     <th>Email</th>
                                     <th>Role</th>
-                                    <th>Actions</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
