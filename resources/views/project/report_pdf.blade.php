@@ -109,19 +109,19 @@
                 <th style="text-align:center;">Rentang Nilai</th>
                 <th style="text-align:center;">Nilai Maturity</th>
                 <th style="text-align:center;">Level Maturity</th>
-                <th style="text-align:center;">Saran</th>
+                <th style="text-align:center;">Penjelasan</th>
             </tr>
         </thead>
         <tbody>
             @php
                 // Mapping for maturity level and suggestions
                 $maturityLevels = [
-                    0 => ['label' => 'Incomplete', 'saran' => 'Pekerjaan mungkin atau mungkin tidak diselesaikan untuk mencapai tujuan tata kelola dan sasaran manajemen di bidang fokus.'],
-                    1 => ['label' => 'Initial', 'saran' => 'Pekerjaan telah selesai, tetapi tujuan dan maksud utama dari area fokus belum sepenuhnya tercapai.'],
-                    2 => ['label' => 'Managed', 'saran' => 'Perencanaan dan pengukuran kinerja dilakukan, meskipun belum secara standar'],
-                    3 => ['label' => 'Defined', 'saran' => 'Standar perusahaan secara menyeluruh memberikan panduan di seluruh perusahaan.'],
-                    4 => ['label' => 'Quantitative', 'saran' => 'Perusahaan ini berorientasi pada data, dengan peningkatan kinerja yang berbasis kuantitatif.'],
-                    5 => ['label' => 'Optimizing', 'saran' => 'Perusahaan ini berfokus pada perbaikan berkelanjutan.'],
+                    0 => ['label' => 'Incomplete', 'Penjelasan' => 'Pekerjaan mungkin atau mungkin tidak diselesaikan untuk mencapai tujuan tata kelola dan sasaran manajemen di bidang fokus.'],
+                    1 => ['label' => 'Initial', 'Penjelasan' => 'Pekerjaan telah selesai, tetapi tujuan dan maksud utama dari area fokus belum sepenuhnya tercapai.'],
+                    2 => ['label' => 'Managed', 'Penjelasan' => 'Perencanaan dan pengukuran kinerja dilakukan, meskipun belum secara standar'],
+                    3 => ['label' => 'Defined', 'Penjelasan' => 'Standar perusahaan secara menyeluruh memberikan panduan di seluruh perusahaan.'],
+                    4 => ['label' => 'Quantitative', 'Penjelasan' => 'Perusahaan ini berorientasi pada data, dengan peningkatan kinerja yang berbasis kuantitatif.'],
+                    5 => ['label' => 'Optimizing', 'Penjelasan' => 'Perusahaan ini berfokus pada perbaikan berkelanjutan.'],
                 ];
                 // Hitung nilai maturity dari level terakhir tiap klausul
                 $levelSum = 0;
@@ -152,7 +152,7 @@
                 } else {
                     $nilaiMaturity = $grandTotal;
                     $levelMaturity = $maturityLevels[$nilaiMaturity]['label'] ?? '';
-                    $saran = $maturityLevels[$nilaiMaturity]['saran'] ?? '';
+                    $saran = $maturityLevels[$nilaiMaturity]['Penjelasan'] ?? '';
                 }
             @endphp
             <tr>
