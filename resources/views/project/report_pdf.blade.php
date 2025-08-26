@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -57,31 +56,52 @@
         </thead>
         <tbody>
             @php
-                // Ambil level terakhir yang digarap untuk setiap klausul
-                $lastLevels = [];
+                // Ambil level tertinggi per klausul yang skornya > 15, jika tidak ada, ambil level tertinggi apapun
+                $klausulLevels = [];
                 foreach($project->auditAnswers as $answer) {
                     $levelObj = $answer->level;
                     if ($levelObj && $levelObj->klausul_id) {
                         $klausulId = $levelObj->klausul_id;
-                        if (!isset($lastLevels[$klausulId]) || $levelObj->level > $lastLevels[$klausulId]['level']) {
-                            $lastLevels[$klausulId] = [
-                                'level' => $levelObj->level,
-                                'levelObj' => $levelObj,
-                                'score' => $totals[$levelObj->id] ?? 0
-                            ];
+                        $score = $totals[$levelObj->id] ?? 0;
+                        if (!isset($klausulLevels[$klausulId])) {
+                            $klausulLevels[$klausulId] = [];
                         }
+                        $klausulLevels[$klausulId][$levelObj->level] = [
+                            'level' => $levelObj->level,
+                            'levelObj' => $levelObj,
+                            'score' => $score
+                        ];
+                    }
+                }
+                $filteredLevels = [];
+                $lastLevels = [];
+                foreach ($klausulLevels as $klausulId => $levels) {
+                    // Urutkan level dari tertinggi ke terendah
+                    krsort($levels);
+                    $found = false;
+                    foreach ($levels as $data) {
+                        if ($data['score'] > 15) {
+                            $filteredLevels[$klausulId] = $data;
+                            $lastLevels[$klausulId] = $data;
+                            $found = true;
+                            break;
+                        }
+                    }
+                    // Jika tidak ada yang > 15, ambil level tertinggi (meskipun skornya <= 15)
+                    if (!$found && count($levels) > 0) {
+                        $filteredLevels[$klausulId] = reset($levels);
+                        $lastLevels[$klausulId] = reset($levels);
                     }
                 }
             @endphp
-            @foreach($lastLevels as $klausulId => $data)
+            @foreach($filteredLevels as $klausulId => $data)
                 @php
                     $levelObj = $data['levelObj'];
                     $klausulName = $levelObj && $levelObj->klausul ? $levelObj->klausul->nama_klausul : '-';
                     $levelName = $levelObj ? $levelObj->level : '-';
                     $score = $data['score'];
                     if ($score <= 15) {
-                        $skala = 'N';
-                        $desc = 'Tidak Tercapai. Tidak terdapat aktivitas yang dilakukan dalam mencapai tujuan bisnis.';
+                        continue; // skip baris ini
                     } elseif ($score <= 50) {
                         $skala = 'P';
                         $desc = 'Sebagian Kecil Tercapai. Ada beberapa bukti pendekatan dan proses yang dinilai. Beberapa atribut pencapaian kinerja mungkin tidak dapat diprediksi.';
@@ -109,7 +129,6 @@
                 <th style="text-align:center;">Rentang Nilai</th>
                 <th style="text-align:center;">Nilai Maturity</th>
                 <th style="text-align:center;">Level Maturity</th>
-                <th style="text-align:center;">Penjelasan</th>
             </tr>
         </thead>
         <tbody>
@@ -159,7 +178,18 @@
                 <td style="text-align:center;">{{ $rentangNilai }}</td>
                 <td style="text-align:center;">{{ $nilaiMaturity }}</td>
                 <td style="text-align:center;">{{ $levelMaturity }}</td>
-                <td>{{ $saran }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <table style="margin-top:10px;">
+        <thead>
+            <tr>
+                <th colspan="3" style="background:#eee; text-align:center;">Rekomendasi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="3" style="text-align:center;">{{ $saran }}</td>
             </tr>
         </tbody>
     </table>

@@ -32,7 +32,7 @@ Daftar Project Audit
                             <tr>
                                 <th>No</th>
                                 <th>Nama Project</th>
-                                <th>Auditor</th>
+                                <th>User</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>

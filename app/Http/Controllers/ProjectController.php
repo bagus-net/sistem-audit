@@ -366,28 +366,49 @@ class ProjectController extends Controller
             $score = $count > 0 ? (collect($answers)->sum('jawaban') / $count) * 100 : 0;
             $totals[$levelId] = $score;
         }
-        // Perhitungan Nilai Maturity: jumlahkan level yang muncul di report (level terakhir tiap klausul),
-        // lalu bagi dengan total klausul yang muncul di report
+        // Ambil level tertinggi per klausul yang skornya > 15, jika tidak ada, ambil level tertinggi apapun
         $lastLevels = [];
         if ($auditedAnswers) {
+            $klausulLevels = [];
             foreach ($auditedAnswers as $answer) {
                 $levelObj = $answer->level;
                 if ($levelObj && $levelObj->klausul_id) {
                     $klausulId = $levelObj->klausul_id;
-                    if (!isset($lastLevels[$klausulId]) || $levelObj->level > $lastLevels[$klausulId]['level']) {
-                        $lastLevels[$klausulId] = [
-                            'level' => $levelObj->level,
-                            'levelObj' => $levelObj,
-                            'levelId' => $levelObj->id
-                        ];
+                    $score = $totals[$levelObj->id] ?? 0;
+                    if (!isset($klausulLevels[$klausulId])) {
+                        $klausulLevels[$klausulId] = [];
                     }
+                    $klausulLevels[$klausulId][$levelObj->level] = [
+                        'level' => $levelObj->level,
+                        'levelObj' => $levelObj,
+                        'score' => $score,
+                        'levelId' => $levelObj->id
+                    ];
+                }
+            }
+            foreach ($klausulLevels as $klausulId => $levels) {
+                krsort($levels);
+                $found = false;
+                foreach ($levels as $data) {
+                    if ($data['score'] > 15) {
+                        $lastLevels[$klausulId] = $data;
+                        $found = true;
+                        break;
+                    }
+                }
+                if (!$found && count($levels) > 0) {
+                    $lastLevels[$klausulId] = reset($levels);
                 }
             }
         }
+        // Hitung hanya yang lolos filter (score > 15)
         $levelSum = 0;
-        $levelCount = count($lastLevels);
+        $levelCount = 0;
         foreach ($lastLevels as $klausulId => $data) {
-            $levelSum += $data['level'];
+            if ($data['score'] > 15) {
+                $levelSum += $data['level'];
+                $levelCount++;
+            }
         }
         $grandTotalRaw = $levelCount > 0 ? ($levelSum / $levelCount) : 0;
         // Pembulatan ke rentang maturity
