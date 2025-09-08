@@ -21,23 +21,27 @@ Audit Project - Level {{ $level->level }}
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
+                                    <th style="width: 25%">Sub Proses</th>
                                     <th>Pertanyaan</th>
                                     <th>Jawaban </th>
                                     <th>Bukti Hasil Kerja</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($level->questions as $question)
+                                @foreach($level->questions as $qIdx => $question)
                                     <tr>
+                                        @if($qIdx == 0)
+                                            <td style="vertical-align: top; text-align: left; padding: 12px 10px; white-space: pre-line;" rowspan="{{ count($level->questions) }}">{{ $level->sub_proses ?? '-' }}</td>
+                                        @endif
                                         <td>{{ $question->pertanyaan }}</td>
                                         <td class="text-center">
                                             <input type="hidden" name="answers[{{ $question->id }}][jawaban]" value="0">
                                             <input type="checkbox" class="jawaban-checkbox" name="answers[{{ $question->id }}][jawaban]" value="1" 
-                                                {{ (isset($answers[$loop->index]) && $answers[$loop->index]->jawaban == 1) ? 'checked' : '' }}>
+                                                {{ (isset($answers[$qIdx]) && $answers[$qIdx]->jawaban == 1) ? 'checked' : '' }}>
                                             <input type="hidden" name="answers[{{ $question->id }}][question_id]" value="{{ $question->id }}">
                                         </td>
                                         <td>
-                                            <textarea name="answers[{{ $question->id }}][bukti_hasil_kerja]" class="form-control">{{ isset($answers[$loop->index]) ? $answers[$loop->index]->bukti_hasil_kerja : '' }}</textarea>
+                                            <textarea name="answers[{{ $question->id }}][bukti_hasil_kerja]" class="form-control">{{ isset($answers[$qIdx]) ? $answers[$qIdx]->bukti_hasil_kerja : '' }}</textarea>
                                         </td>
                                     </tr>
                                 @endforeach

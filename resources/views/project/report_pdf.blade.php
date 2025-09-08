@@ -1,3 +1,24 @@
+    <br>
+    {{-- Rekomendasi/penjelasan maturity singkat --}}
+    @php
+        $maturityExplanations = [
+            1 => ' proses layanan TI sudah dijalankan namun masih bersifat reaktif dan belum terstruktur.',
+            2 => ' proses layanan TI mulai direncanakan, dilaksanakan, dan didokumentasikan, tetapi konsistensi penerapannya belum optimal.',
+            3 => ' proses layanan TI sudah memiliki pedoman tertulis dan dilaksanakan secara konsisten di seluruh perusahaan.',
+            4 => ' proses layanan TI telah dipantau dan dievaluasi dengan ukuran kinerja yang jelas sehingga kinerjanya dapat diprediksi dan dikendalikan.',
+            5 => ' proses layanan TI terus ditingkatkan secara berkelanjutan melalui inovasi dan analisis hasil pengukuran kinerja.',
+        ];
+        $rekomendasi = '';
+        if (!empty($nilaiMaturity) && isset($maturityExplanations[$nilaiMaturity])) {
+            $rekomendasi = $maturityExplanations[$nilaiMaturity];
+        }
+    @endphp
+    @if($rekomendasi)
+    <div style="margin: 20px 0; padding: 15px; background: #e9f7ef; border: 1px solid #b2dfdb; border-radius: 6px;">
+        <strong>Rekomendasi:</strong><br>
+        {{ $rekomendasi }}
+    </div>
+    @endif
 <!DOCTYPE html>
 <html>
 <head>
@@ -75,42 +96,74 @@
                 }
                 $filteredLevels = [];
                 $lastLevels = [];
+                $levelStandar = 85;
                 foreach ($klausulLevels as $klausulId => $levels) {
-                    // Urutkan level dari tertinggi ke terendah
+                    // Urutkan level dari terbesar ke terkecil
                     krsort($levels);
-                    $found = false;
+                    $foundLevel = null;
+                    $hasLevel1 = isset($levels[1]);
+                    $hasLevel2 = isset($levels[2]);
+                    // Jika hanya ada level 2 dan nilainya <= 85, tambahkan dummy level 1
+                    if (!$hasLevel1 && $hasLevel2 && $levels[2]['score'] <= 85) {
+                        $dummyLevel1 = [
+                            'level' => 1,
+                            'levelObj' => null,
+                            'score' => 0,
+                            'is_dummy' => true
+                        ];
+                        $levels[1] = $dummyLevel1;
+                        krsort($levels);
+                    }
                     foreach ($levels as $data) {
-                        if ($data['score'] > 15) {
-                            $filteredLevels[$klausulId] = $data;
-                            $lastLevels[$klausulId] = $data;
-                            $found = true;
+                        if ($data['score'] > $levelStandar) {
+                            $foundLevel = $data;
                             break;
                         }
                     }
-                    // Jika tidak ada yang > 15, ambil level tertinggi (meskipun skornya <= 15)
-                    if (!$found && count($levels) > 0) {
-                        $filteredLevels[$klausulId] = reset($levels);
-                        $lastLevels[$klausulId] = reset($levels);
+                    if (!$foundLevel && count($levels) > 0) {
+                        // Ambil level terkecil jika semua <= 50%
+                        $minLevel = null;
+                        $minData = null;
+                        foreach ($levels as $data) {
+                            if ($minLevel === null || $data['level'] < $minLevel) {
+                                $minLevel = $data['level'];
+                                $minData = $data;
+                            }
+                        }
+                        $foundLevel = $minData;
+                    }
+                    if ($foundLevel) {
+                        $filteredLevels[$klausulId] = $foundLevel;
+                        $lastLevels[$klausulId] = $foundLevel;
                     }
                 }
             @endphp
             @foreach($filteredLevels as $klausulId => $data)
                 @php
                     $levelObj = $data['levelObj'];
-                    $klausulName = $levelObj && $levelObj->klausul ? $levelObj->klausul->nama_klausul : '-';
-                    $levelName = $levelObj ? $levelObj->level : '-';
-                    $score = $data['score'];
-                    if ($score <= 15) {
-                        continue; // skip baris ini
-                    } elseif ($score <= 50) {
-                        $skala = 'P';
-                        $desc = 'Sebagian Kecil Tercapai. Ada beberapa bukti pendekatan dan proses yang dinilai. Beberapa atribut pencapaian kinerja mungkin tidak dapat diprediksi.';
-                    } elseif ($score <= 85) {
-                        $skala = 'L';
-                        $desc = 'Sebagian Besar Tercapai. Proses TI sudah diimplementasikan namun ada beberapa yang harus diperbaiki.';
+                    // Jika dummy, ambil nama klausul dari salah satu level lain di klausul yang sama
+                    if ($data['is_dummy'] ?? false) {
+                        $levelName = 1;
+                        // Cari nama klausul dari salah satu level di klausulLevels
+                        $klausulName = isset($klausulLevels[$klausulId][2]['levelObj']->klausul->nama_klausul) ? $klausulLevels[$klausulId][2]['levelObj']->klausul->nama_klausul : '-';
+                        $score = 0;
+                        $desc = 'Tidak Tercapai. Tidak ada aktivitas yang dilakukan dalam mencapai tujuan bisnis.';
                     } else {
-                        $skala = 'F';
-                        $desc = 'Secara Keseluruhan Tercapai. Proses telah diimplementasikan dan dikelola dengan baik, berada pada tingkat yang matang.';
+                        $klausulName = $levelObj && $levelObj->klausul ? $levelObj->klausul->nama_klausul : '-';
+                        $levelName = $levelObj ? $levelObj->level : '-';
+                        $score = $data['score'];
+                        if ($score <= 15) {
+                            continue; // skip baris ini
+                        } elseif ($score <= 50) {
+                            $skala = 'P';
+                            $desc = 'Sebagian Kecil Tercapai. Ada beberapa bukti pendekatan dan proses yang dinilai. Beberapa atribut pencapaian kinerja mungkin tidak dapat diprediksi.';
+                        } elseif ($score <= 85) {
+                            $skala = 'L';
+                            $desc = 'Sebagian Besar Tercapai. Proses TI sudah diimplementasikan namun ada beberapa yang harus diperbaiki.';
+                        } else {
+                            $skala = 'F';
+                            $desc = 'Secara Keseluruhan Tercapai. Proses telah diimplementasikan dan dikelola dengan baik, berada pada tingkat yang matang.';
+                        }
                     }
                 @endphp
                 <tr>
@@ -181,15 +234,32 @@
             </tr>
         </tbody>
     </table>
+    @php
+        $maturityImprovement = [
+            1 => 'Perusahaan perlu mulai menyusun aturan dan pedoman formal terkait layanan teknologi informasi agar pelaksanaan proses memiliki dasar yang jelas dan terarah.',
+            2 => 'Perusahaan perlu meningkatkan konsistensi penerapan layanan dengan memperkuat dokumentasi serta menerapkan standar yang sama di seluruh unit.',
+            3 => 'Evaluasi dan penyempurnaan aturan serta pedoman layanan perlu dilakukan secara berkala untuk memastikan kesesuaian dengan kebutuhan perusahaan dan perkembangan teknologi.',
+            4 => 'Perusahaan perlu mengembangkan pengukuran kinerja dengan indikator yang lebih menyeluruh, serta menganalisis hasil evaluasi secara sistematis untuk mendukung proses pengambilan keputusan yang tepat.',
+            5 => 'Budaya perbaikan berkelanjutan perlu diperkuat melalui inovasi, penerapan praktik terbaik, dan pemanfaatan teknologi baru agar efektivitas serta kepuasan pengguna layanan meningkat.',
+        ];
+    @endphp
     <table style="margin-top:10px;">
         <thead>
             <tr>
-                <th colspan="3" style="background:#eee; text-align:center;">Rekomendasi</th>
+                <th colspan="3" style="background:#46e96e; text-align:center; text color:#012E0CFF ;">Saran Perbaikan</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td colspan="3" style="text-align:center;">{{ $saran }}</td>
+                <td colspan="3" style="text-align:center; background: #ff1f1f; color: #ffffff; font-weight: 500;">
+                    @if($nilaiMaturity == 5)
+                        Tidak ada
+                    @elseif($nilaiMaturity && isset($maturityImprovement[$nilaiMaturity]))
+                        {{ $maturityImprovement[$nilaiMaturity] }}
+                    @else
+                        -
+                    @endif
+                </td>
             </tr>
         </tbody>
     </table>

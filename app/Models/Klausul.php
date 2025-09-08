@@ -14,4 +14,9 @@ class Klausul extends Model
     public function prosesTi() {
         return $this->hasMany(ProsesTi::class);
     }
+
+    public function projects()
+    {
+        return $this->belongsToMany(\App\Models\Project::class, 'klausul_project');
+    }
 }

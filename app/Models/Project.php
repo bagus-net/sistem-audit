@@ -12,10 +12,16 @@ class Project extends Model
     protected $fillable = [
         'nama_project',
         'auditor',
+        'klausul',
     ];
 
     public function auditAnswers()
     {
         return $this->hasMany(AuditAnswer::class);
+    }
+
+    public function klausuls()
+    {
+        return $this->belongsToMany(\App\Models\Klausul::class, 'klausul_project');
     }
 }

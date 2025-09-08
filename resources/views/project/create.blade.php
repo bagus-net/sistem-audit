@@ -24,7 +24,7 @@ Project
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">Buat Project Audit</div>
+                <div class="card-header">Buat Project</div>
                 <div class="card-body">
                     <form action="{{ route('project.store') }}" method="POST">
                         @csrf
@@ -33,7 +33,7 @@ Project
                             <input type="text" name="nama_project" id="nama_project" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label for="auditor" class="form-label">Auditor</label>
+                            <label for="auditor" class="form-label">User</label>
                             <input type="text" name="auditor" id="auditor" class="form-control" readonly>
                         </div>
                         <div class="mb-3">
@@ -52,6 +52,9 @@ Project
                                             <input class="form-check-input" type="checkbox" name="klausul_id[]" id="klausul_{{ $klausul->id }}" value="{{ $klausul->id }}" {{ (!$levels->count() || !$hasQuestions) ? 'disabled' : '' }}>
                                             <label class="form-check-label" for="klausul_{{ $klausul->id }}">
                                                 {{ $klausul->nama_klausul }}
+                                                @if($klausul->deskripsi)
+                                                    <span class="text-muted">({{ $klausul->deskripsi }})</span>
+                                                @endif
                                                 @if(!$levels->count() || !$hasQuestions)
                                                     <span class="text-danger">(tidak bisa dipilih)</span>
                                                 @endif

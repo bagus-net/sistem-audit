@@ -45,6 +45,8 @@ class ProjectController extends Controller
             'nama_project' => $validated['nama_project'],
             'auditor' => $validated['auditor'] ?? null,
         ]);
+        // Attach klausul ke project (isi tabel pivot)
+        $project->klausuls()->attach($klausulIds);
         // Simpan klausul yang dipilih ke session
         session(['selected_klausuls' => $klausulIds]);
         // Setelah input project, langsung ke level list
@@ -390,7 +392,7 @@ class ProjectController extends Controller
                 krsort($levels);
                 $found = false;
                 foreach ($levels as $data) {
-                    if ($data['score'] > 15) {
+                    if ($data['score'] > 85) {
                         $lastLevels[$klausulId] = $data;
                         $found = true;
                         break;
@@ -405,7 +407,7 @@ class ProjectController extends Controller
         $levelSum = 0;
         $levelCount = 0;
         foreach ($lastLevels as $klausulId => $data) {
-            if ($data['score'] > 15) {
+            if ($data['score'] > 85) {
                 $levelSum += $data['level'];
                 $levelCount++;
             }

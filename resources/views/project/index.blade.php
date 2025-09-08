@@ -21,7 +21,7 @@ Daftar Project Audit
                 {{ session('error') }}
             </div>
         @endif
-                <div class="card-header">Daftar Project Audit</div>
+                <div class="card-header">Daftar Project</div>
                 <div class="card-body">
                     @php $role = auth()->user()->role ?? null; @endphp
                     @if($role == '1' || $role == '2')
@@ -33,6 +33,7 @@ Daftar Project Audit
                                 <th>No</th>
                                 <th>Nama Project</th>
                                 <th>User</th>
+                                <th>Klausul</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -43,14 +44,19 @@ Daftar Project Audit
                                 <td>{{ $project->nama_project }}</td>
                                 <td>{{ $project->auditor }}</td>
                                 <td>
+                                    @foreach($project->klausuls as $klausul)
+                                        <span class="badge bg-info text-light mb-1"> {{ $klausul->nama_klausul }}</span>
+                                    @endforeach
+                                </td>
+                                <td>
+                                    <a href="{{ route('project.show', $project->id) }}" class="btn btn-primary btn-sm" title="View">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
                                     @if($role != '3')
                                     <a href="{{ route('project.levelList',$project->id) }}" class="btn btn-info btn-sm" title="Audit">
                                         <i class="fa fa-clipboard-check"></i>
                                     </a>
                                     @endif
-                                    {{-- <a href="{{ route('project.show', $project->id) }}" class="btn btn-primary btn-sm" title="Lihat Hasil">
-                                        <i class="fa fa-eye"></i>
-                                    </a> --}}
                                     <a href="{{ route('project.downloadPdf', $project->id) }}" class="btn btn-success btn-sm" title="Download Report PDF">
                                         <i class="fa fa-file-pdf"></i>
                                     </a>

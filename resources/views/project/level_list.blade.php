@@ -23,7 +23,7 @@ Pilih Level Audit
         @endif
             <div class="card">
                 {{-- ALERTS DIHILANGKAN SESUAI PERMINTAAN --}}
-                <div class="card-header">Pilih Level untuk Audit Project: {{ $project->nama_project }}</div>
+                <div class="card-header">Pilih Level untuk Project: {{ $project->nama_project }}</div>
                 <div class="card-body">
                     {{-- <div class="alert alert-info" style="font-size: 15px;">
                         <b>Catatan:</b> Hanya level 2 pada klausul pertama yang terbuka. Untuk memulai audit, tekan tombol <b>Audit</b> pada kolom Aksi.
@@ -52,7 +52,7 @@ Pilih Level Audit
                                 <tr>
                                     <th class="text-center">No</th>
                                     <th>Klausul</th>
-                                    <th>Sub Proses</th>
+
                                     <th class="text-center">Level</th>
                                     <th class="text-center">Skor & Skala (%)</th>
                                     <th class="text-center" style="width: 220px;">Deskripsi</th>
@@ -68,7 +68,7 @@ Pilih Level Audit
                                 <tr>
                                     <td class="text-center">{{ $offset + $i + 1 }}</td>
                                     <td>{{ $levelModel->klausul->nama_klausul ?? '-' }}</td>
-                                    <td style="white-space: pre-line;">{{ $levelModel->sub_proses }}</td>
+                                    
                                     <td class="text-center">{{ $levelModel->level }}</td>
                                     <td class="text-center">
                                         {{ number_format($levelScores[$levelModel->id], 2) }}

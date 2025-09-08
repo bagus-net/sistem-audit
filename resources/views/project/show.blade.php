@@ -6,116 +6,70 @@ Hasil Audit Project
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.7.0/dist/css/bootstrap.min.css">
 @endsection
 @section('content')
+
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-10">
+        <div class="col-md-12">
             <div class="card">
-                <div class="card-header">Hasil Audit Project: {{ $project->nama_project }}</div>
+                <div class="card-header">Detail Project: {{ $project->nama_project }}</div>
                 <div class="card-body">
-                    <button class="btn btn-outline-primary mb-2" type="button" id="toggleTableBtn" onclick="toggleAuditTable()">Sembunyikan Tabel Audit</button>
-                    <div id="auditTableWrapper">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Klausul</th>
-                                    <th>Sub Proses</th>
-                                    <th class="text-center">Level</th>
-                                    <th>Pertanyaan</th>
-                                    <th class="text-center">Jawaban</th>
-                                    <th>Bukti Hasil Kerja</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($filteredAnswers as $answer)
-                                <tr>
-                                    <td>{{ $answer->klausul->nama_klausul ?? '-' }}</td>
-                                    <td style="white-space: pre-line;">{{ $answer->level->sub_proses ?? '-' }}</td>
-                                <td class="text-center">{{ $answer->level->level ?? '-' }}</td>
-                                    <td>{{ $answer->question->pertanyaan ?? '-' }}</td>
-                                <td class="text-center">{{ $answer->jawaban == 1 ? 'Y' : 'N' }}</td>
-                                    <td>{{ $answer->bukti_hasil_kerja }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    <script>
-                        function toggleAuditTable() {
-                            var wrapper = document.getElementById('auditTableWrapper');
-                            var btn = document.getElementById('toggleTableBtn');
-                            if (wrapper.style.display === 'none') {
-                                wrapper.style.display = '';
-                                btn.innerText = 'Sembunyikan Tabel Audit';
-                            } else {
-                                wrapper.style.display = 'none';
-                                btn.innerText = 'Tampilkan Tabel Audit';
-                            }
-                        }
-                    </script>
-                    {{-- <div class="alert alert-info">
-                        <strong>Total Audit: </strong> {{ number_format($total, 2) }}%
-                    </div> --}}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="alert alert-info">
-                                <strong>Total Audit Per Klausul:</strong><br>
-                                <ul>
-                                @foreach($totals as $levelId => $score)
-                                    @if($score > 50)
-                                        @php
-                                            $levelObj = $project->auditAnswers->where('level_id', $levelId)->first()->level ?? null;
-                                            $klausulName = $levelObj && $levelObj->klausul ? $levelObj->klausul->nama_klausul : '-';
-                                            $levelName = $levelObj ? $levelObj->level : $levelId;
-                                            // Skala dan pernyataan
-                                            if ($score <= 15) {
-                                                $skala = 'N';
-                                                $desc = 'Not Achieved (Tidak Tercapai). Tidak terdapat aktivitas yang dilakukan dalam mencapai tujuan bisnis.';
-                                            } elseif ($score <= 50) {
-                                                $skala = 'P';
-                                                $desc = 'Partially Achieved (Sebagian Kecil Tercapai). Ada beberapa bukti pendekatan dan proses yang dinilai. Beberapa atribut pencapaian kinerja mungkin tidak dapat diprediksi.';
-                                            } elseif ($score <= 85) {
-                                                $skala = 'L';
-                                                $desc = 'Largely Achieved (Sebagian Besar Tercapai). Proses TI sudah diimplementasikan namun ada beberapa yang harus diperbaiki.';
-                                            } else {
-                                                $skala = 'F';
-                                                $desc = 'Fully Achieved (Secara Keseluruhan Tercapai). Proses telah diimplementasikan dan dikelola dengan baik, berada pada tingkat yang matang.';
-                                            }
-                                        @endphp
-                                        <li><strong>{{ $klausulName }}</strong> - Level {{ $levelName }}: <strong>{{ number_format($score, 2) }}%</strong><br>
-                                            <span class="badge bg-primary">Skala: {{ $skala }}</span> <br>
-                                            <em>{{ $desc }}</em>
-                                        </li>
-                                    @endif
-                                @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="alert alert-success">
-                                <strong>Skor Maturity:</strong> <br>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Klausul</th>
+                                <th>Deskripsi</th>
+                                <th>Level</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php 
+                                $no = 1; 
+                                $levelStandar = 85; // Standar skor minimal
+                                $levelSum = 0;
+                                $levelCount = 0;
+                                $klausulLevelDisplay = [];
+                            @endphp
+                            @foreach($project->klausuls as $klausul)
                                 @php
-                                    // Hitung level terakhir tiap klausul
-                                    $lastLevels = [];
-                                    foreach($project->auditAnswers as $answer) {
-                                        $levelObj = $answer->level;
-                                        if ($levelObj && $levelObj->klausul_id) {
-                                            $klausulId = $levelObj->klausul_id;
-                                            if (!isset($lastLevels[$klausulId]) || $levelObj->level > $lastLevels[$klausulId]['level']) {
-                                                $lastLevels[$klausulId] = [
-                                                    'level' => $levelObj->level,
-                                                    'levelObj' => $levelObj,
-                                                    'levelId' => $levelObj->id
-                                                ];
-                                            }
+                                    // Ambil semua audit answer untuk klausul ini, urutkan level terbesar ke terkecil
+                                    $answers = $project->auditAnswers->where('klausul_id', $klausul->id)->sortByDesc(function($a){ return $a->level->level; });
+                                    $foundLevel = 1;
+                                    foreach($answers as $ans) {
+                                        $count = $project->auditAnswers->where('level_id', $ans->level_id)->count();
+                                        $score = $count > 0 ? ($project->auditAnswers->where('level_id', $ans->level_id)->sum('jawaban') / $count) * 100 : 0;
+                                        if($score > $levelStandar) {
+                                            $foundLevel = $ans->level->level;
+                                            break;
                                         }
                                     }
-                                    $levelSum = 0;
-                                    $levelCount = count($lastLevels);
-                                    foreach ($lastLevels as $klausulId => $data) {
-                                        $levelSum += $data['level'];
-                                    }
-                                    $grandTotalRaw = $levelCount > 0 ? ($levelSum / $levelCount) : 0;
-                                    // Pembulatan ke rentang maturity
+                                    $levelSum += $foundLevel;
+                                    $levelCount++;
+                                    $klausulLevelDisplay[$klausul->id] = $foundLevel;
+                                @endphp
+                                <tr>
+                                    <td>{{ $no++ }}</td>
+                                    <td> {{ $klausul->nama_klausul }}</td>
+                                    <td>{{ $klausul->deskripsi }}</td>
+                                    <td>{{ $klausulLevelDisplay[$klausul->id] }}</td>
+                                    <td>
+                                        {{-- <a href="#" class="btn btn-primary btn-sm" title="View"><i class="fa fa-eye"></i></a>
+                                        <a href="#" class="btn btn-warning btn-sm" title="Edit"><i class="fa fa-pencil-alt"></i></a>
+                                        <a href="#" class="btn btn-danger btn-sm" title="Delete"><i class="fa fa-trash"></i></a> --}}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="border p-3 mb-3">
+                                <div><b>Maturity level (rata-rata)</b></div>
+                                <div>{{ number_format($levelCount > 0 ? $levelSum / $levelCount : 0, 2) }}</div>
+                                <div class="mt-2"><b>(Pembulatan)</b></div>
+                                @php
+                                    $grandTotalRaw = $levelCount > 0 ? $levelSum / $levelCount : 0;
                                     if ($grandTotalRaw <= 0.50) {
                                         $nilaiMaturity = 0;
                                         $levelMaturity = 'Incomplete';
@@ -136,15 +90,77 @@ Hasil Audit Project
                                         $levelMaturity = 'Optimizing';
                                     }
                                 @endphp
-                                <span style="font-size:1.5em"><strong>{{ number_format($grandTotalRaw, 2) }}</strong></span>
-                                <div class="mt-2">
-                                    <strong>Nilai Maturity:</strong> {{ $nilaiMaturity }}<br>
-                                    <strong>Level Maturity:</strong> {{ $levelMaturity }}
+                                <div>{{ $nilaiMaturity }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    @php
+                                        $maturityProcessDesc = [
+                                            1 => 'Proses layanan TI sudah dijalankan namun masih bersifat reaktif dan belum terstruktur.',
+                                            2 => 'Proses layanan teknologi informasi mulai direncanakan, dilaksanakan, dan didokumentasikan secara sistematis, namun penerapan standar baku serta konsistensi perusahaann masih belum optimal.',
+                                            3 => 'Proses layanan TI sudah memiliki pedoman tertulis dan dilaksanakan secara konsisten di seluruh perusahaan',
+                                            4 => 'Proses layanan TI telah dipantau dan dievaluasi dengan ukuran kinerja yang jelas sehingga kinerjanya dapat diprediksi dan dikendalikan.',
+                                            5 => 'Proses layanan TI terus ditingkatkan secara berkelanjutan melalui inovasi dan analisis hasil pengukuran kinerja.',
+                                        ];
+                                    @endphp
+                                    <div class="alert alert-info">
+                                        <b>Kesimpulan:</b><br>
+                                        Anda berada di level {{ $nilaiMaturity ?? '-' }} (berdasarkan pembulatan), artinya proses anda:<br>
+                                        <span class="text">{{ $maturityProcessDesc[$nilaiMaturity] ?? '-' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    @php
+                                        $maturityImprovement = [
+                                            1 => 'Perusahaan perlu mulai menyusun aturan dan pedoman formal terkait layanan teknologi informasi agar pelaksanaan proses memiliki dasar yang jelas dan terarah.',
+                                            2 => 'Perusahaan perlu meningkatkan konsistensi penerapan layanan dengan memperkuat dokumentasi serta menerapkan standar yang sama di seluruh unit.',
+                                            3 => 'Evaluasi dan penyempurnaan aturan serta pedoman layanan perlu dilakukan secara berkala untuk memastikan kesesuaian dengan kebutuhan perusahaan dan perkembangan teknologi.',
+                                            4 => 'Perusahaan perlu mengembangkan pengukuran kinerja dengan indikator yang lebih menyeluruh, serta menganalisis hasil evaluasi secara sistematis untuk mendukung proses pengambilan keputusan yang tepat.',
+                                            5 => 'Budaya perbaikan berkelanjutan perlu diperkuat melalui inovasi, penerapan praktik terbaik, dan pemanfaatan teknologi baru agar efektivitas serta kepuasan pengguna layanan meningkat.',
+                                        ];
+                                    @endphp
+                                    <div class="alert alert-success">
+                                        <b>Saran Perbaikan</b><br>
+                                        @if(($nilaiMaturity ?? 0) == 5)
+                                            Tidak ada
+                                        @else
+                                            Untuk mencapai <b>Level {{ $nilaiMaturity + 1 ?? '-' }} ({{ $levelMaturity ?? '-' }})</b>,<br>
+                                            <span class="text">{{ $maturityImprovement[$nilaiMaturity] ?? '-' }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="card">
+                                    <div class="card-header">Target Level yang Akan Dicapai</div>
+                                    <div class="card-body">
+                                        @php
+                                            $levelDesc = [
+                                                1 => 'Level 1: Initial (Permulaan). Proses layanan TI dijalankan secara reaktif, tidak terstruktur, dan tanpa aturan atau pedoman resmi.',
+                                                2 => 'Level 2: Managed (Terkelola). Proses layanan TI mulai direncanakan, dilaksanakan, dan didokumentasikan, namun konsistensi dan standarisasi belum optimal.',
+                                                3 => 'Level 3: Defined (Ditetapkan). Standar di seluruh perusahaan memberikan panduan bagi perusahaan.',
+                                                4 => 'Level 4: Quantitatively Managed (Terkelola secara Kuantitatif). Proses dipantau dan dievaluasi dengan ukuran kinerja yang jelas, sehingga kinerjanya dapat diprediksi dan dikendalikan.',
+                                                5 => 'Level 5: Optimizing (Pengoptimalan). Proses layanan TI terus ditingkatkan secara berkelanjutan melalui inovasi dan analisis hasil pengukuran kinerja.',
+                                            ];
+                                            $targetLevel = ($nilaiMaturity ?? 0) < 5 ? ($nilaiMaturity + 1) : 5;
+                                        @endphp
+                                        <b>Level {{ $targetLevel }}</b>
+                                        <div class="mt-2 p-3 border rounded bg-light">
+                                            <b class="text-primary">Deskripsi Level {{ $targetLevel }}:</b><br>
+                                            @if($targetLevel == 5 && ($nilaiMaturity ?? 0) == 5)
+                                                <span style="color:#2196f3">Proses Layanan TI pada Perusahaan berjalan sempurna</span>
+                                            @else
+                                                <span style="color:#2196f3">{{ $levelDesc[$targetLevel] ?? '-' }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <a href="{{ route('project.index') }}" class="btn btn-secondary">Kembali</a>
+                    <a href="{{ route('project.index') }}" class="btn btn-secondary mt-4">Kembali</a>
                 </div>
             </div>
         </div>
